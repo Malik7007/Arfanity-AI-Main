@@ -101,8 +101,6 @@
 	setContext('i18n', i18n);
 
 	const bc = new BroadcastChannel('active-tab-channel');
-
-	let loaded = false;
 	let tokenTimer = null;
 
 	let showRefresh = false;
