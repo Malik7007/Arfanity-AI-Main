@@ -1039,3 +1039,7 @@ body {
 	background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
 	@apply flex items-center justify-center rounded-2xl text-white shadow-lg shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:brightness-110;
 }
+
+.sidebar-new-chat-icon {
+	@apply object-contain transition-transform duration-300 group-hover:scale-110;
+}

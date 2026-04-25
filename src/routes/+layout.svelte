@@ -851,6 +851,10 @@
 	};
 
 	onMount(async () => {
+		// IMMEDIATELY show the UI and remove the splash screen to prevent blocking
+		loaded = true;
+		document.getElementById('splash-screen')?.remove();
+
 		window.addEventListener('message', windowMessageEventHandler);
 
 		let touchstartY = 0;
@@ -1070,10 +1074,6 @@
 		}
 
 		await tick();
-
-		// Remove splash screen and set loaded to true immediately
-		document.getElementById('splash-screen')?.remove();
-		loaded = true;
 
 		// Auto-show SyncStatsModal when opened with ?sync=true (from community)
 		if (
