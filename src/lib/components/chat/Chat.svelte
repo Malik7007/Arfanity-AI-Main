@@ -112,7 +112,7 @@
 
 	export let chatIdProp = '';
 
-	let loading = true;
+	let loading = false;
 
 	const eventTarget = new EventTarget();
 	let controlPane: Pane | undefined;
@@ -697,7 +697,7 @@
 	};
 
 	onMount(() => {
-		loading = true;
+		loading = false;
 		console.log('mounted');
 		window.addEventListener('message', onMessageHandler);
 		$socket?.on('events', chatEventHandler);

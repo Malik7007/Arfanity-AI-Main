@@ -290,18 +290,18 @@
 		scrollPaginationEnabled.set(false);
 
 		initFolders();
-		await Promise.all([
-			await (async () => {
+		Promise.all([
+			(async () => {
 				console.log('Init tags');
-				const _tags = await getAllTags(localStorage.token);
+				const _tags = await getAllTags(localStorage.token).catch(() => []);
 				tags.set(_tags);
 			})(),
-			await (async () => {
+			(async () => {
 				console.log('Init pinned chats');
-				const _pinnedChats = await getPinnedChatList(localStorage.token);
+				const _pinnedChats = await getPinnedChatList(localStorage.token).catch(() => []);
 				pinnedChats.set(_pinnedChats);
 			})(),
-			await (async () => {
+			(async () => {
 				if (
 					$config?.features?.enable_notes &&
 					($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))
@@ -311,9 +311,9 @@
 					pinnedNotes.set(_pinnedNotes);
 				}
 			})(),
-			await (async () => {
+			(async () => {
 				console.log('Init chat list');
-				const _chats = await getChatList(localStorage.token, $currentChatPage);
+				const _chats = await getChatList(localStorage.token, $currentChatPage).catch(() => []);
 				await chats.set(_chats);
 			})()
 		]);
