@@ -1,0 +1,19 @@
+services:
+  arfanity-ai:
+    build: .
+    image: arfanity-ai:latest
+    container_name: arfanity-ai
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ENV=prod
+      - AI_NAME=Arfanity AI
+      # Admin Account (Created on first run)
+      - AI_ADMIN_EMAIL=arfan.malik786@gmail.com
+      - AI_ADMIN_PASSWORD=change_me_immediately
+      # User Account Settings
+      - ENABLE_SIGNUP=True
+      - DATA_DIR=/app/data
+    restart: always

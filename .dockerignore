@@ -1,0 +1,28 @@
+# Build context optimization
+node_modules
+.git
+.github
+.vscode
+dist
+build
+.next
+.svelte-kit
+
+# Backend data and local environment
+backend/data
+backend/__pycache__
+backend/.venv
+backend/*.db
+backend/*.log
+backend/cache
+backend/uploads
+
+# Docker/Electron files
+Dockerfile
+docker-compose.yml
+arfanity-ai.tar
+electron/dist
+
+# OS files
+.DS_Store
+Thumbs.db
