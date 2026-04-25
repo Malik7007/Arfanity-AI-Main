@@ -96,7 +96,6 @@
 				alt="Arfanity AI Logo"
 			/>
 		</div>
-
 		<h1 class="text-4xl @sm:text-5xl font-bold tracking-tight mb-2 bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
 			{AI_NAME}
 		</h1>
