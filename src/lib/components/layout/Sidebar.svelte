@@ -1074,13 +1074,6 @@
 						</a>
 					</div>
 
-					{#if showSetDefault}
-						<div
-							class="relative text-center mt-0.5 text-[0.7rem] text-gray-500 dark:text-gray-400 font-medium tracking-tight opacity-80 hover:opacity-100 transition-opacity"
-						>
-							<button on:click={saveDefaultModel}> {$i18n.t('Set as default')}</button>
-						</div>
-					{/if}
 
 					<div class="px-[0.4375rem] flex justify-center text-gray-800 dark:text-gray-200">
 						<button

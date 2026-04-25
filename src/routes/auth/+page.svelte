@@ -249,6 +249,7 @@
 							{/if}
 							<form
 								class=" flex flex-col justify-center"
+								enctype="multipart/form-data"
 								on:submit={(e) => {
 									e.preventDefault();
 									submitHandler();

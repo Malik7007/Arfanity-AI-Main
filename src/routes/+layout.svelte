@@ -8,6 +8,8 @@
 		stiffness: 0.05
 	});
 
+	let loaded = false;
+
 	import { onMount, tick, setContext, onDestroy } from 'svelte';
 	import {
 		config,

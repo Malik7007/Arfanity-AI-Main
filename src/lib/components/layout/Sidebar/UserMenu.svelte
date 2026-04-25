@@ -624,11 +624,10 @@
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer select-none"
 				type="button"
 				on:click={async () => {
-					const res = await userSignOut();
+					userSignOut().catch((e) => console.error(e));
 					user.set(null);
 					localStorage.removeItem('token');
-
-					location.href = res?.redirect_url ?? '/auth';
+					location.href = '/auth';
 					show = false;
 				}}
 			>
