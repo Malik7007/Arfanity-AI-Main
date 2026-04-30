@@ -4,7 +4,6 @@
 	import { fade } from 'svelte/transition';
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
-	import { AI_BASE_URL } from '$lib/constants';
 
 	const dispatch = createEventDispatcher();
 	const i18n = getContext('i18n');
@@ -15,6 +14,7 @@
 		title: '',
 		content: '',
 		url: '',
+		image_url: '',
 		dismissible: true,
 		timestamp: Math.floor(Date.now() / 1000)
 	};
@@ -72,7 +72,7 @@
 						<div class="flex md:hidden group w-fit md:items-center">
 							<a 
 								class="text-gray-700 dark:text-white text-xs font-semibold underline"
-								href="{AI_BASE_URL}/assets/files/whitepaper.pdf"
+								href={banner.url}
 								target="_blank" rel="noopener noreferrer" 
 							>
 								{$i18n.t('Learn More')}
@@ -99,6 +99,13 @@
 					{/if}
 				</div>
 				<div class="flex-1 text-xs text-gray-700 dark:text-white max-h-60 overflow-y-auto">
+					{#if banner.image_url}
+						<img
+							src={banner.image_url}
+							alt={banner.title || $i18n.t('Banner image')}
+							class="w-full max-h-36 object-cover rounded-md mb-1.5"
+						/>
+					{/if}
 					{@html DOMPurify.sanitize(marked.parse((banner?.content ?? '').replace(/\n/g, '<br>')))}
 				</div>
 			</div>
@@ -107,7 +114,7 @@
 				<div class="hidden md:flex group w-fit md:items-center">
 					<a 
 						class="text-gray-700 dark:text-white text-xs font-semibold underline"
-						href="/"
+						href={banner.url}
 						target="_blank" rel="noopener noreferrer" 
 					>
 						{$i18n.t('Learn More')}

@@ -1,0 +1,20 @@
+services:
+  arfanity-ai:
+    image: ${IMAGE_REF}
+    container_name: arfanity-ai
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      ENV: prod
+      FRONTEND_BUILD_DIR: /app/build
+      DATA_DIR: /app/data
+      AI_NAME: ${AI_NAME}
+      AI_ADMIN_EMAIL: ${AI_ADMIN_EMAIL}
+      AI_ADMIN_PASSWORD: ${AI_ADMIN_PASSWORD}
+      ENABLE_SIGNUP: ${ENABLE_SIGNUP:-False}
+      # Add provider keys as needed:
+      # OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

@@ -196,6 +196,13 @@
 		// IMMEDIATELY set loaded to true to show the chatroom UI
 		loaded = true;
 
+		// Wait briefly for root auth bootstrap on refresh to avoid false sign-outs.
+		let waitCycles = 0;
+		while ($user === undefined && waitCycles < 100) {
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			waitCycles += 1;
+		}
+
 		if ($user === undefined || $user === null) {
 			await goto('/auth');
 			return;
@@ -395,9 +402,9 @@
 {/if}
 
 {#if $user}
-	<div class="app relative">
+	<div class="app relative {$user?.role !== 'admin' ? 'ui-user' : 'ui-admin'}">
 		<div
-			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden flex flex-row"
+			class="app-shell text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden flex flex-row"
 		>
 			{#if !['user', 'admin'].includes($user?.role)}
 				<AccountPending />

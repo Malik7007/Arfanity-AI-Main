@@ -95,11 +95,11 @@
 				<FolderTitle
 					folder={$selectedFolder}
 					onUpdate={async (folder) => {
-						await chats.set(await getChatList(localStorage.token, $currentChatPage));
+						await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 						currentChatPage.set(1);
 					}}
 					onDelete={async () => {
-						await chats.set(await getChatList(localStorage.token, $currentChatPage));
+						await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 						currentChatPage.set(1);
 
 						selectedFolder.set(null);

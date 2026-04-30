@@ -1774,6 +1774,8 @@ class BannerModel(BaseModel):
     type: str
     title: Optional[str] = None
     content: str
+    url: Optional[str] = None
+    image_url: Optional[str] = None
     dismissible: bool
     timestamp: int
 

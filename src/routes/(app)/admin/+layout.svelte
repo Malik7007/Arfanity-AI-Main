@@ -13,6 +13,12 @@
 	let loaded = false;
 
 	onMount(async () => {
+		let waitCycles = 0;
+		while ($user === undefined && waitCycles < 100) {
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			waitCycles += 1;
+		}
+
 		if ($user?.role !== 'admin') {
 			await goto('/');
 		}
@@ -28,11 +34,11 @@
 
 {#if loaded}
 	<div
-		class=" flex flex-col h-screen max-h-[100dvh] flex-1 transition-width duration-200 ease-in-out {$showSidebar
+		class="admin-panel-shell flex flex-col h-screen max-h-[100dvh] flex-1 transition-width duration-200 ease-in-out {$showSidebar
 			? 'md:max-w-[calc(100%-var(--sidebar-width))]'
 			: ' md:max-w-[calc(100%-49px)]'}  w-full max-w-full"
 	>
-		<nav class="   px-2.5 pt-1.5 backdrop-blur-xl drag-region select-none">
+		<nav class="admin-topbar px-2.5 pt-1.5 backdrop-blur-xl drag-region select-none">
 			<div class=" flex items-center gap-1">
 				{#if $mobile}
 					<div class="{$showSidebar ? 'md:hidden' : ''} flex flex-none items-center self-end">
@@ -57,12 +63,12 @@
 
 				<div class=" flex w-full">
 					<div
-						class="flex gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-medium rounded-full bg-transparent pt-1"
+						class="admin-tabs flex gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-medium rounded-full bg-transparent pt-1"
 					>
 						<a
 							draggable="false"
-							class="min-w-fit p-1.5 {$page.url.pathname.includes('/admin/users')
-								? ''
+							class="admin-tab min-w-fit p-1.5 {$page.url.pathname.includes('/admin/users')
+								? 'admin-tab-active'
 								: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition select-none"
 							href="/admin">{$i18n.t('Users')}</a
 						>
@@ -70,8 +76,8 @@
 						{#if $config?.features.enable_admin_analytics ?? true}
 							<a
 								draggable="false"
-								class="min-w-fit p-1.5 {$page.url.pathname.includes('/admin/analytics')
-									? ''
+								class="admin-tab min-w-fit p-1.5 {$page.url.pathname.includes('/admin/analytics')
+									? 'admin-tab-active'
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition select-none"
 								href="/admin/analytics">{$i18n.t('Analytics')}</a
 							>
@@ -79,24 +85,24 @@
 
 						<a
 							draggable="false"
-							class="min-w-fit p-1.5 {$page.url.pathname.includes('/admin/evaluations')
-								? ''
+							class="admin-tab min-w-fit p-1.5 {$page.url.pathname.includes('/admin/evaluations')
+								? 'admin-tab-active'
 								: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition select-none"
 							href="/admin/evaluations">{$i18n.t('Evaluations')}</a
 						>
 
 						<a
 							draggable="false"
-							class="min-w-fit p-1.5 {$page.url.pathname.includes('/admin/functions')
-								? ''
+							class="admin-tab min-w-fit p-1.5 {$page.url.pathname.includes('/admin/functions')
+								? 'admin-tab-active'
 								: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition select-none"
 							href="/admin/functions">{$i18n.t('Functions')}</a
 						>
 
 						<a
 							draggable="false"
-							class="min-w-fit p-1.5 {$page.url.pathname.includes('/admin/settings')
-								? ''
+							class="admin-tab min-w-fit p-1.5 {$page.url.pathname.includes('/admin/settings')
+								? 'admin-tab-active'
 								: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition select-none"
 							href="/admin/settings">{$i18n.t('Settings')}</a
 						>

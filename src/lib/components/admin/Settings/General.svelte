@@ -924,6 +924,8 @@
 												type: '',
 												title: '',
 												content: '',
+												url: '',
+												image_url: '',
 												dismissible: true,
 												timestamp: Math.floor(Date.now() / 1000)
 											}

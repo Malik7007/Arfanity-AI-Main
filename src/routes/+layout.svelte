@@ -103,6 +103,7 @@
 	const bc = new BroadcastChannel('active-tab-channel');
 	let tokenTimer = null;
 	const SESSION_USER_CACHE_KEY = 'session-user-cache';
+	let sessionValidated = false;
 
 	let showRefresh = false;
 
@@ -526,7 +527,7 @@
 				}
 			} else if (type === 'chat:title') {
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 			} else if (type === 'chat:tags') {
 				tags.set(await getAllTags(localStorage.token));
 			}
@@ -732,6 +733,10 @@
 
 	const TOKEN_EXPIRY_BUFFER = 60; // seconds
 	const checkTokenExpiry = async () => {
+		if (!sessionValidated) {
+			return;
+		}
+
 		const exp = $user?.expires_at; // token expiry time in unix timestamp
 		const now = Math.floor(Date.now() / 1000); // current time in unix timestamp
 
@@ -1055,6 +1060,7 @@
 						});
 
 					if (sessionUser) {
+						sessionValidated = true;
 						await user.set(sessionUser);
 						localStorage.setItem(SESSION_USER_CACHE_KEY, JSON.stringify(sessionUser));
 						try {

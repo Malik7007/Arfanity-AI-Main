@@ -1096,21 +1096,15 @@
 
 	const initNewChat = async () => {
 		console.log('initNewChat');
-		if ($user?.role !== 'admin' && $user?.permissions?.chat?.temporary_enforced) {
-			await temporaryChatEnabled.set(true);
-		}
-
-		if ($settings?.temporaryChatByDefault ?? false) {
+		if ($user?.role !== 'admin') {
+			await temporaryChatEnabled.set(false);
+		} else if ($settings?.temporaryChatByDefault ?? false) {
 			if ($temporaryChatEnabled === false) {
 				await temporaryChatEnabled.set(true);
 			} else if ($temporaryChatEnabled === null) {
 				// if set to null set to false; refer to temp chat toggle click handler
 				await temporaryChatEnabled.set(false);
 			}
-		}
-
-		if ($user?.role !== 'admin' && !$user?.permissions?.chat?.temporary) {
-			await temporaryChatEnabled.set(false);
 		}
 
 		const availableModels = $models
@@ -2436,7 +2430,11 @@
 				// Only update if the user hasn't navigated to a different chat
 				// while the request was in flight (prevents overwriting $chatId
 				// and causing spurious toast notifications / state duplication).
-				if (res.chat_id && $chatId !== res.chat_id && $chatId === _chatId) {
+				if (
+					res.chat_id &&
+					$chatId !== res.chat_id &&
+					(($chatId && $chatId === _chatId) || !$chatId || !_chatId)
+				) {
 					await chatId.set(res.chat_id);
 					_chatId = res.chat_id;
 					if (!$temporaryChatEnabled) {
@@ -2487,6 +2485,14 @@
 					if (!_chatId && !$temporaryChatEnabled) {
 						await initChatHandler(history);
 					}
+				} else if (!_chatId && !$temporaryChatEnabled && res?.chat_id) {
+					// Streaming/task path can return chat_id before local state is set.
+					// Ensure we sync URL/store so history reliably appears in sidebar.
+					await chatId.set(res.chat_id);
+					_chatId = res.chat_id;
+					window.history.replaceState(history.state, '', `/c/${res.chat_id}`);
+					currentChatPage.set(1);
+					await chats.set(await getChatList(localStorage.token, 1, false, true));
 				}
 			}
 		}
@@ -2888,7 +2894,7 @@
 <div
 	class="h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
 		? '  md:max-w-[calc(100%-var(--sidebar-width))]'
-		: ' '} w-full max-w-full flex flex-col"
+		: ' '} w-full max-w-full flex flex-col {$user?.role !== 'admin' ? 'advanced-chat-shell' : 'admin-chat-shell'}"
 	id="chat-container"
 >
 	{#if !loading}
@@ -2929,6 +2935,7 @@
 						{history}
 						title={$chatTitle}
 						bind:selectedModels
+						showModelSelector={false}
 						shareEnabled={!!history.currentId}
 						{initNewChat}
 						{archiveChatHandler}
@@ -2972,7 +2979,12 @@
 						}}
 					/>
 
-					<div id="chat-pane" class="flex flex-col flex-auto z-10 w-full @container overflow-auto">
+					<div
+						id="chat-pane"
+						class="flex flex-col flex-auto z-10 w-full @container overflow-auto {$user?.role !== 'admin'
+							? 'advanced-chat'
+							: 'admin-chat'}"
+					>
 						{#if ($settings?.landingPageMode === 'chat' && !$selectedFolder) || createMessagesList(history, history.currentId).length > 0}
 							<div
 								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
@@ -2986,6 +2998,7 @@
 							>
 								<div class=" h-full w-full flex flex-col">
 									<Messages
+										className={`h-full flex pt-8 ${$user?.role !== 'admin' ? 'advanced-chat' : 'admin-chat'}`}
 										chatId={$chatId}
 										bind:history
 										bind:autoScroll

@@ -35,7 +35,8 @@
 		currentChatPage,
 		tags,
 		selectedFolder,
-		activeChatIds
+		activeChatIds,
+		user
 	} from '$lib/stores';
 
 	import ChatMenu from './ChatMenu.svelte';
@@ -130,7 +131,7 @@
 			}
 
 			currentChatPage.set(1);
-			await chats.set(await getChatList(localStorage.token, $currentChatPage));
+			await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 			await pinnedChats.set(await getPinnedChatList(localStorage.token));
 
 			dispatch('change');
@@ -153,7 +154,7 @@
 			goto(`/c/${res.id}`);
 
 			currentChatPage.set(1);
-			await chats.set(await getChatList(localStorage.token, $currentChatPage));
+			await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 			await pinnedChats.set(await getPinnedChatList(localStorage.token));
 		}
 	};
@@ -219,7 +220,7 @@
 
 			if (res) {
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 				await pinnedChats.set(await getPinnedChatList(localStorage.token));
 
 				dispatch('change');
@@ -405,7 +406,7 @@
 <div
 	id="sidebar-chat-group"
 	bind:this={itemElement}
-	class=" w-full {className} relative group {(id === $chatId || selected) ? 'selected' : ''} {$_user?.role !== 'admin' ? 'chat-item-advanced' : ''}"
+	class=" w-full {className} relative group {(id === $chatId || selected) ? 'selected' : ''} {$user?.role !== 'admin' ? 'chat-item-advanced' : ''}"
 	draggable={!confirmEdit}
 >
 	{#if confirmEdit}

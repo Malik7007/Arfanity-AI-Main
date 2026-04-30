@@ -97,7 +97,7 @@
 		}
 
 		currentChatPage.set(1);
-		await chats.set(await getChatList(localStorage.token, $currentChatPage));
+		await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 		pinnedChats.set(await getPinnedChatList(localStorage.token));
 		scrollPaginationEnabled.set(true);
 	};
@@ -116,7 +116,7 @@
 		});
 
 		currentChatPage.set(1);
-		await chats.set(await getChatList(localStorage.token, $currentChatPage));
+		await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 		pinnedChats.set([]);
 		scrollPaginationEnabled.set(true);
 	};
@@ -128,13 +128,13 @@
 		});
 
 		currentChatPage.set(1);
-		await chats.set(await getChatList(localStorage.token, $currentChatPage));
+		await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 		scrollPaginationEnabled.set(true);
 	};
 
 	const handleArchivedChatsChange = async () => {
 		currentChatPage.set(1);
-		await chats.set(await getChatList(localStorage.token, $currentChatPage));
+		await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 
 		scrollPaginationEnabled.set(true);
 	};

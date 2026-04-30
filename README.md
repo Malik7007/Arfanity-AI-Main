@@ -98,6 +98,56 @@ For a quick production-ready deployment:
 docker compose up -d --build
 ```
 
+## 🚀 CI/CD (No Source Code on Server)
+
+This repo includes a GitHub Actions pipeline at:
+
+- `.github/workflows/docker-ci-cd.yml`
+
+What it does:
+
+1. Builds Docker image from this repo
+2. Pushes image to GHCR (`ghcr.io/<owner>/<repo>`)
+3. SSHes into your server
+4. Pulls latest image and restarts with Docker Compose
+
+Your server only needs Docker + compose and deployment files in `/opt/arfanity-ai`.  
+No `git clone` is required on the server.
+
+### 1) Prepare server once
+
+```bash
+sudo mkdir -p /opt/arfanity-ai/data
+cd /opt/arfanity-ai
+```
+
+Copy `deploy/docker-compose.server.yml` from your local machine/repo to:
+
+- `/opt/arfanity-ai/docker-compose.server.yml`
+
+Then create `/opt/arfanity-ai/.env` on the server (use `deploy/server.env.example` as template).
+
+```bash
+nano /opt/arfanity-ai/.env
+```
+
+Edit `/opt/arfanity-ai/.env` and set real values.
+
+### 2) GitHub secrets required
+
+Set these in your GitHub repo secrets:
+
+- `VPS_HOST` (server IP/domain)
+- `VPS_USER` (SSH user)
+- `VPS_SSH_KEY` (private key content)
+- `VPS_PORT` (optional, default `22`)
+- `GHCR_PULL_USER` (GitHub username that can pull package)
+- `GHCR_PULL_TOKEN` (GitHub token with `read:packages`)
+
+### 3) Push to `main`
+
+Any push to `main` triggers build + deploy automatically.
+
 ---
 
 ## 🤝 Contributing

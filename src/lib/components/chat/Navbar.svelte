@@ -75,7 +75,9 @@
 <nav
 	class="sticky top-0 z-30 w-full {chat?.id
 		? 'pt-0.5 pb-1'
-		: 'pt-1 pb-1'} -mb-12 flex flex-col items-center drag-region"
+		: 'pt-1 pb-1'} -mb-12 flex flex-col items-center drag-region {$user?.role !== 'admin'
+		? 'advanced-navbar'
+		: 'admin-navbar'}"
 >
 	<div class="flex items-center w-full pl-1.5 pr-1">
 		<div
@@ -110,6 +112,7 @@
 					class="flex-1 overflow-hidden max-w-full mt-0.5 py-0.5 flex justify-center items-center
 			md:absolute md:left-1/2 md:-translate-x-1/2 md:w-auto md:max-w-[60vw]
 			{$showSidebar ? 'ml-1' : ''}
+			model-selector-dock
 			"
 				>
 					{#if showModelSelector}
@@ -122,7 +125,7 @@
 				>
 					<!-- <div class="md:hidden flex self-center w-[1px] h-5 mx-2 bg-gray-300 dark:bg-stone-700"></div> -->
 
-					{#if $user?.role === 'user' ? ($user?.permissions?.chat?.temporary ?? true) && !($user?.permissions?.chat?.temporary_enforced ?? false) : true}
+					{#if $user?.role === 'admin'}
 						{#if !chat?.id}
 							<Tooltip content={$i18n.t(`Temporary Chat`)}>
 								<button
@@ -215,7 +218,7 @@
 						</Menu>
 					{/if}
 
-					{#if $user?.role === 'admin' || ($user?.permissions.chat?.controls ?? true)}
+					{#if $user?.role === 'admin'}
 						<Tooltip content={$i18n.t('Controls')}>
 							<button
 								class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
@@ -269,7 +272,7 @@
 	{/if}
 
 	<div class="absolute top-[100%] left-0 right-0 h-fit">
-		{#if !history.currentId && !$chatId && ($banners.length > 0 || ($config?.license_metadata?.type ?? null) === 'trial' || (($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats))}
+		{#if $banners.length > 0 || ($config?.license_metadata?.type ?? null) === 'trial' || (($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats)}
 			<div class=" w-full z-30">
 				<div class=" flex flex-col gap-1 w-full">
 					{#if ($config?.license_metadata?.type ?? null) === 'trial'}

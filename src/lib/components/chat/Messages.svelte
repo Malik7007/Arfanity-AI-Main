@@ -153,7 +153,7 @@
 			});
 
 			currentChatPage.set(1);
-			await chats.set(await getChatList(localStorage.token, $currentChatPage));
+			await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 		}
 	};
 

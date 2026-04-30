@@ -4,6 +4,7 @@ export type Banner = {
 	title?: string;
 	content: string;
 	url?: string;
+	image_url?: string;
 	dismissible?: boolean;
 	timestamp: number;
 };

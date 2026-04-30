@@ -6,6 +6,8 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Sortable from 'sortablejs';
 	import { getContext } from 'svelte';
+	import { AI_API_BASE_URL } from '$lib/constants';
+	import { toast } from 'svelte-sonner';
 	const i18n = getContext('i18n');
 
 	export let banners = [];
@@ -51,6 +53,34 @@
 			});
 		}
 	};
+
+	const uploadBannerImage = async (file: File, bannerIdx: number) => {
+		if (!file) return;
+		try {
+			const formData = new FormData();
+			formData.append('file', file);
+
+			const res = await fetch(`${AI_API_BASE_URL}/files/?process=false`, {
+				method: 'POST',
+				headers: {
+					authorization: `Bearer ${localStorage.token}`
+				},
+				body: formData
+			});
+
+			if (!res.ok) {
+				throw await res.json();
+			}
+
+			const payload = await res.json();
+			banners[bannerIdx].image_url = `${AI_API_BASE_URL}/files/${payload.id}/content`;
+			banners = banners;
+			toast.success($i18n.t('Banner image uploaded'));
+		} catch (error) {
+			console.error(error);
+			toast.error($i18n.t('Failed to upload banner image'));
+		}
+	};
 </script>
 
 <div class=" flex flex-col gap-3 {banners?.length > 0 ? 'mt-2' : ''}" bind:this={bannerListElement}>
@@ -77,6 +107,41 @@
 					bind:value={banner.content}
 					maxSize={100}
 				></textarea>
+
+				<div class="flex flex-col gap-1.5 mr-2 min-w-40">
+					<input
+						type="text"
+						class="text-xs rounded-lg px-2 py-1 bg-gray-50 dark:bg-gray-900 outline-hidden"
+						placeholder={$i18n.t('Link URL (optional)')}
+						bind:value={banner.url}
+					/>
+
+					<label
+						for="banner-image-input-{banner.id}"
+						class="text-xs rounded-lg px-2 py-1 bg-gray-100 dark:bg-gray-900 cursor-pointer text-center"
+					>
+						{$i18n.t('Upload Image')}
+					</label>
+					<input
+						id="banner-image-input-{banner.id}"
+						type="file"
+						accept="image/*"
+						class="hidden"
+						on:change={async (e) => {
+							const file = e.currentTarget?.files?.[0];
+							if (file) {
+								await uploadBannerImage(file, bannerIdx);
+							}
+						}}
+					/>
+					{#if banner.image_url}
+						<img
+							src={banner.image_url}
+							alt={$i18n.t('Banner image preview')}
+							class="w-full h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-800"
+						/>
+					{/if}
+				</div>
 
 				<div class="relative -left-2">
 					<Tooltip content={$i18n.t('Remember Dismissal')} className="flex h-fit items-center">

@@ -19,7 +19,6 @@
 		mobile,
 		showArchivedChats,
 		pinnedChats,
-		pinnedNotes,
 		scrollPaginationEnabled,
 		currentChatPage,
 		temporaryChatEnabled,
@@ -49,10 +48,8 @@
 		getChatListBySearchText
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
-	import { createNewNote, getPinnedNoteList, toggleNotePinnedStatusById } from '$lib/apis/notes';
 	import { updateUserSettings } from '$lib/apis/users';
 	import { checkActiveChats } from '$lib/apis/tasks';
-	import { createNoteHandler } from '$lib/components/notes/utils';
 	import { AI_API_BASE_URL, AI_BASE_URL } from '$lib/constants';
 
 	import ArchivedChatsModal from './ArchivedChatsModal.svelte';
@@ -78,7 +75,7 @@
 	import HotkeyHint from '../common/HotkeyHint.svelte';
 
 	const BREAKPOINT = 768;
-	const DEFAULT_PINNED_ITEMS = ['notes', 'workspace'];
+	const DEFAULT_PINNED_ITEMS = ['workspace'];
 
 	let scrollTop = 0;
 
@@ -91,13 +88,13 @@
 	// Pagination variables
 	let chatListLoading = false;
 	let allChatsLoaded = false;
+	const CHAT_PAGE_SIZE = 60;
 
 	let showCreateFolderModal = false;
 
 	let pinnedModels = [];
 
 	let showPinnedModels = false;
-	let showPinnedNotes = false;
 	let showChannels = false;
 	let showFolders = false;
 
@@ -111,10 +108,7 @@
 	const isMenuItemVisible = (id) => {
 		switch (id) {
 			case 'notes':
-				return (
-					($config?.features?.enable_notes ?? false) &&
-					($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))
-				);
+				return false;
 			case 'workspace':
 				return (
 					$user?.role === 'admin' ||
@@ -290,18 +284,24 @@
 		currentChatPage.set(1);
 		allChatsLoaded = false;
 		scrollPaginationEnabled.set(false);
+		chatListLoading = true;
 
 		// Fetch the chat list FIRST and render it immediately so the sidebar
 		// appears instantly — just like ChatGPT does. Tags, pinned items, notes,
 		// and folders load in the background without blocking the main list.
 		console.log('Init chat list');
 		const _chats = await getChatList(localStorage.token, $currentChatPage, false, true).catch(
-			() => []
+			(error) => {
+				console.error('Failed to load chat history:', error);
+				return [];
+			}
 		);
 		await chats.set(_chats);
+		allChatsLoaded = _chats.length < CHAT_PAGE_SIZE;
 
-		// Enable pagination immediately so scroll-loading works
-		scrollPaginationEnabled.set(true);
+		// Enable pagination only when there might be more pages
+		scrollPaginationEnabled.set(!allChatsLoaded);
+		chatListLoading = false;
 
 		// Load supporting data in the background — none of these block rendering
 		initFolders();
@@ -311,14 +311,6 @@
 		getPinnedChatList(localStorage.token)
 			.then((_pinnedChats) => pinnedChats.set(_pinnedChats))
 			.catch(() => {});
-		if (
-			$config?.features?.enable_notes &&
-			($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))
-		) {
-			getPinnedNoteList(localStorage.token)
-				.then((_pinnedNotes) => pinnedNotes.set(_pinnedNotes))
-				.catch(() => {});
-		}
 	};
 
 	const loadMoreChats = async () => {
@@ -328,15 +320,22 @@
 
 		let newChatList = [];
 
-		newChatList = await getChatList(localStorage.token, $currentChatPage, false, true);
+		try {
+			newChatList = await getChatList(localStorage.token, $currentChatPage, false, true);
 
-		// once the bottom of the list has been reached (no results) there is no need to continue querying
-		allChatsLoaded = newChatList.length === 0;
-		const existingIds = new Set(($chats ?? []).map((c) => c.id));
-		const uniqueNewChats = newChatList.filter((c) => !existingIds.has(c.id));
-		await chats.set([...($chats ? $chats : []), ...uniqueNewChats]);
-
-		chatListLoading = false;
+			// once the bottom of the list has been reached (or final partial page), stop querying
+			allChatsLoaded = newChatList.length < CHAT_PAGE_SIZE;
+			const existingIds = new Set(($chats ?? []).map((c) => c.id));
+			const uniqueNewChats = newChatList.filter((c) => !existingIds.has(c.id));
+			await chats.set([...($chats ? $chats : []), ...uniqueNewChats]);
+		} catch (error) {
+			console.error('Failed to load more chats:', error);
+			// Avoid infinite loader loop when a pagination request fails
+			allChatsLoaded = true;
+		} finally {
+			scrollPaginationEnabled.set(!allChatsLoaded);
+			chatListLoading = false;
+		}
 	};
 
 	const importChatHandler = async (items, pinned = false, folderId = null) => {
@@ -648,9 +647,7 @@
 		chatId.set('');
 		selectedFolder.set(null);
 
-		if ($user?.role !== 'admin' && $user?.permissions?.chat?.temporary_enforced) {
-			await temporaryChatEnabled.set(true);
-		} else {
+		if ($user?.role !== 'admin') {
 			await temporaryChatEnabled.set(false);
 		}
 
@@ -983,7 +980,7 @@
 		bind:this={navElement}
 		id="sidebar"
 		class="h-screen max-h-[100dvh] min-h-screen select-none {$showSidebar
-			? `${$mobile ? 'bg-gray-50 dark:bg-gray-950' : ($user?.role !== 'admin' ? 'advanced-sidebar' : 'bg-gray-50/70 dark:bg-gray-950/70')} z-50`
+			? `${$mobile ? 'bg-gray-50 dark:bg-gray-950' : ($user?.role !== 'admin' ? 'advanced-sidebar' : 'admin-sidebar')} z-50`
 			: ' bg-transparent z-0 '} {$isApp
 			? `ml-[4.5rem] md:ml-0 `
 			: ' transition-all duration-300 '} shrink-0 text-gray-900 dark:text-gray-200 text-sm {$mobile ? 'fixed top-0 left-0' : 'relative'} overflow-x-hidden
@@ -1053,7 +1050,7 @@
 					<div class="px-[0.4375rem] flex justify-center text-gray-800 dark:text-gray-200">
 						<a
 							id="sidebar-new-chat-button"
-							class="group grow flex items-center transition-all duration-300 outline-none {$user?.role !== 'admin' ? 'premium-new-chat-btn mx-2 mb-2 h-[42px] px-4' : 'rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 space-x-3'}"
+							class="group grow flex items-center transition-all duration-300 outline-none {$user?.role !== 'admin' ? 'premium-new-chat-btn mx-2 mb-2 h-[42px] px-4' : 'admin-new-chat-btn rounded-2xl px-2.5 py-2 space-x-3'}"
 							href="/"
 							draggable="false"
 							on:click={newChatHandler}
@@ -1073,7 +1070,7 @@
 					<div class="px-[0.4375rem] flex justify-center text-gray-800 dark:text-gray-200">
 						<button
 							id="sidebar-search-button"
-							class="group grow flex items-center transition outline-none {$user?.role !== 'admin' ? 'mx-2 px-3.5 py-2 bg-white/40 dark:bg-white/5 rounded-xl border border-gray-200/50 dark:border-white/10 shadow-sm hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-300' : 'rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 space-x-3'}"
+							class="group grow flex items-center transition outline-none {$user?.role !== 'admin' ? 'mx-2 px-3.5 py-2 bg-white/40 dark:bg-white/5 rounded-xl border border-gray-200/50 dark:border-white/10 shadow-sm hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-300' : 'admin-nav-item rounded-2xl px-2.5 py-2 space-x-3'}"
 							on:click={() => {
 								showSearch.set(true);
 							}}
@@ -1098,7 +1095,7 @@
 								>
 									<a
 										id="sidebar-{itemId}-button"
-										class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
+										class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 transition {$user?.role !== 'admin' ? 'premium-nav-item' : 'admin-nav-item'}"
 										href={meta.href}
 										on:click={itemClickHandler}
 										draggable="false"
@@ -1174,69 +1171,6 @@
 						dragAndDrop={false}
 					>
 						<PinnedModelList bind:selectedChatId {shiftKey} />
-					</Folder>
-				{/if}
-
-				{#if ($config?.features?.enable_notes ?? false) && ($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true)) && $pinnedNotes.length > 0}
-					<Folder
-						id="sidebar-pinned-notes"
-						bind:open={showPinnedNotes}
-						className="px-2 mt-0.5"
-						name={$i18n.t('Notes')}
-						chevron={false}
-						dragAndDrop={false}
-						onAdd={async () => {
-							const note = await createNoteHandler('New Note');
-							if (note) {
-								goto(`/notes/${note.id}`);
-							}
-						}}
-						onAddLabel={$i18n.t('New Note')}
-					>
-						<div class="mt-0.5 pb-1.5">
-							{#each $pinnedNotes as note (note.id)}
-								<a
-									class="w-full flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-900 transition group text-sm"
-									href={`/notes/${note.id}`}
-									on:click={() => {
-										itemClickHandler();
-									}}
-									draggable="false"
-								>
-									<div class="self-center">
-										<Note className="size-4" strokeWidth="2" />
-									</div>
-									<div class="flex-1 text-ellipsis line-clamp-1">
-										{note.title}
-									</div>
-									<button
-										class="invisible group-hover:visible self-center p-0.5 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition"
-										on:click|preventDefault|stopPropagation={async () => {
-											await toggleNotePinnedStatusById(localStorage.token, note.id);
-											const _pinnedNotes = await getPinnedNoteList(localStorage.token).catch(
-												() => []
-											);
-											pinnedNotes.set(_pinnedNotes);
-										}}
-										aria-label={$i18n.t('Unpin')}
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke-width="2"
-											stroke="currentColor"
-											class="size-3.5"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												d="M6 18 18 6M6 6l12 12"></path>
-										</svg>
-									</button>
-								</a>
-							{/each}
-						</div>
 					</Folder>
 				{/if}
 
@@ -1585,7 +1519,7 @@
 							}}
 						>
 							<div
-								class=" flex items-center rounded-2xl py-2 px-1.5 w-full transition {$user?.role !== 'admin' ? 'hover:bg-white/40 dark:hover:bg-white/5 shadow-sm border border-transparent hover:border-gray-200/50 dark:hover:border-white/5 mx-1' : 'hover:bg-gray-100/50 dark:hover:bg-gray-900/50'}"
+								class=" flex items-center rounded-2xl py-2 px-1.5 w-full transition {$user?.role !== 'admin' ? 'hover:bg-white/40 dark:hover:bg-white/5 shadow-sm border border-transparent hover:border-gray-200/50 dark:hover:border-white/5 mx-1' : 'admin-user-entry'}"
 							>
 								<div class=" self-center me-3 relative">
 									<img
