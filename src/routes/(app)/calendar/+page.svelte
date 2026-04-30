@@ -255,8 +255,7 @@
 								><path
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									d="M15.75 19.5 8.25 12l7.5-7.5"
-								/></svg
+									d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg
 							>
 						</button>
 						<button
@@ -274,8 +273,7 @@
 								><path
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									d="m8.25 4.5 7.5 7.5-7.5 7.5"
-								/></svg
+									d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg
 							>
 						</button>
 					</div>
@@ -331,8 +329,7 @@
 								><path
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									d="M12 4.5v15m7.5-7.5h-15"
-								/></svg
+									d="M12 4.5v15m7.5-7.5h-15"></path></svg
 							>
 
 							<span class="hidden sm:inline">{$i18n.t('New Event')}</span>

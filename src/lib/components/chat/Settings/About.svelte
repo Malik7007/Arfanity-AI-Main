@@ -61,9 +61,9 @@
 						</Tooltip>
 
 						{#if $config?.features?.enable_version_update_check}
-							<a 
-								href="https://github.com/arfanity-ai/arfanity-ai/releases/tag/v{version.latest}"
-								target="_blank" rel="noopener noreferrer" 
+							<a
+								href="https://github.com/Malik7007/Arfanity-AI-Main/releases/tag/v{version.latest}"
+								target="_blank"
 							>
 								{updateAvailable === null
 									? $i18n.t('Checking for updates...')
@@ -122,22 +122,43 @@
 				<span class=" capitalize">{$config?.license_metadata?.organization_name}</span>
 			</div>
 		{:else}
+			<div class="flex space-x-1">
+				<a href="https://discord.gg/5rJgQTnV4s" target="_blank">
+					<img
+						alt="Discord"
+						src="https://img.shields.io/badge/Discord-Arfanity_AI-blue?logo=discord&logoColor=white"
+					/>
+				</a>
 
+				<a href="https://github.com/Malik7007" target="_blank">
+					<img
+						alt="X (formerly Twitter) Follow"
+						src="https://img.shields.io/badge/Follow-Arfanity_AI-blue"
+					/>
+				</a>
+
+				<a href="https://github.com/Malik7007/Arfanity-AI-Main" target="_blank">
+					<img
+						alt="Github Repo"
+						src="https://img.shields.io/github/stars/Malik7007/Arfanity-AI-Main?style=social&label=Star us on Github"
+					/>
+				</a>
+			</div>
 		{/if}
 
 		<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 			Emoji graphics provided by
-			<a  href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener noreferrer" >Twemoji</a>, licensed under
-			<a  href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" >CC-BY 4.0</a>.
+			<a href="https://github.com/jdecked/twemoji" target="_blank">Twemoji</a>, licensed under
+			<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY 4.0</a>.
 		</div>
 
 		<div>
 			<pre
-				class="text-xs text-gray-400 dark:text-gray-500">Copyright (c) {new Date().getFullYear()} <a 
-					href="https://github.com/Malik7007"
-					target="_blank" rel="noopener noreferrer" 
-					class="underline">Arfan Malik</a
-				> <a  href="https://github.com/Malik7007" target="_blank" rel="noopener noreferrer" 
+				class="text-xs text-gray-400 dark:text-gray-500">Copyright (c) {new Date().getFullYear()} <a
+					href="https://github.com/Malik7007/Arfanity-AI-Main"
+					target="_blank"
+					class="underline">Arfanity AI</a
+				> <a href="https://github.com/Malik7007/Arfanity-AI-Main/blob/main/LICENSE" target="_blank"
 					>All rights reserved.</a
 				>
 </pre>
@@ -145,10 +166,10 @@
 
 		<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 			{$i18n.t('Created by')}
-			<a 
+			<a
 				class=" text-gray-500 dark:text-gray-300 font-medium"
-				href="https://github.com/Malik7007"
-				target="_blank" rel="noopener noreferrer" >Arfan Malik</a
+				href="https://github.com/tjbck"
+				target="_blank">Timothy J. Baek</a
 			>
 		</div>
 	</div>

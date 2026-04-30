@@ -1303,11 +1303,11 @@
 
 		{#if (params?.format ?? null) !== null}
 			<div class="flex mt-0.5 space-x-2">
-				<textarea
+				<Textarea
 					className="w-full  text-sm bg-transparent outline-hidden"
 					placeholder={$i18n.t('e.g. "json" or a JSON schema')}
 					bind:value={params.format}
-				></textarea>
+				/>
 			</div>
 		{/if}
 	</div>

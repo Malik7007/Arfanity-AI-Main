@@ -14,7 +14,7 @@
 	export let getModels: Function;
 
 	// General
-	let themes = ['dark', 'light'];
+	let themes = ['dark', 'light', 'oled-dark'];
 	let selectedTheme = 'system';
 
 	let languages: Awaited<ReturnType<typeof getLanguages>> = [];
@@ -210,14 +210,12 @@
 						placeholder={$i18n.t('Select a theme')}
 						on:change={() => themeChangeHandler(selectedTheme)}
 					>
-						{#if $user?.role === 'admin'}
-							<option value="system">⚙️ {$i18n.t('System')}</option>
-						{/if}
+						<option value="system">⚙️ {$i18n.t('System')}</option>
 						<option value="dark">🌑 {$i18n.t('Dark')}</option>
+						<option value="oled-dark">🌃 {$i18n.t('OLED Dark')}</option>
 						<option value="light">☀️ {$i18n.t('Light')}</option>
-						{#if $user?.role === 'admin'}
-							<option value="oled-dark">🌃 {$i18n.t('OLED Dark')}</option>
-							<option value="her">🎨 {$i18n.t('Her')}</option>
+						{#if $config?.features?.enable_easter_eggs}
+							<option value="her">🌷 Her</option>
 						{/if}
 					</select>
 				</div>
@@ -249,12 +247,12 @@
 						: 'text-gray-400 dark:text-gray-500'}"
 				>
 					Couldn't find your language?
-					<a 
+					<a
 						class="font-medium underline {($settings?.highContrastMode ?? false)
 							? 'text-gray-700 dark:text-gray-200'
 							: 'text-gray-300'}"
-						href="https://github.com/arfanity-ai/arfanity-ai/blob/main/docs/CONTRIBUTING.md#-translations-and-internationalization"
-						target="_blank" rel="noopener noreferrer" 
+						href="https://github.com/Malik7007/Arfanity-AI-Main/blob/main/docs/CONTRIBUTING.md"
+						target="_blank"
 					>
 						Help us translate Arfanity AI!
 					</a>
@@ -289,7 +287,7 @@
 
 			<div>
 				<div class=" my-2.5 text-sm font-medium">{$i18n.t('System Prompt')}</div>
-				<textarea
+				<Textarea
 					bind:value={system}
 					className={'w-full text-sm outline-hidden resize-vertical' +
 						($settings.highContrastMode
@@ -297,7 +295,7 @@
 							: '  dark:text-gray-300 ')}
 					rows="4"
 					placeholder={$i18n.t('Enter system prompt here')}
-				></textarea>
+				/>
 			</div>
 		{/if}
 

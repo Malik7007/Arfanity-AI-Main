@@ -54,7 +54,7 @@
 	import 'tippy.js/dist/tippy.css';
 
 	import { executeToolServer, getBackendConfig, getModels, getVersion } from '$lib/apis';
-	import { getSessionUser, updateUserTimezone, userSignOut } from '$lib/apis/auths';
+	import { updateUserTimezone, userSignOut } from '$lib/apis/auths';
 	import { getAllTags, getChatList } from '$lib/apis/chats';
 	import { chatCompletion } from '$lib/apis/openai';
 	import {
@@ -102,6 +102,7 @@
 
 	const bc = new BroadcastChannel('active-tab-channel');
 	let tokenTimer = null;
+	const SESSION_USER_CACHE_KEY = 'session-user-cache';
 
 	let showRefresh = false;
 
@@ -1027,13 +1028,35 @@
 
 				if (localStorage.token) {
 					// Get Session User Info
-					const sessionUser = await getSessionUser(localStorage.token).catch((error) => {
-						toast.error(`${error}`);
-						return null;
-					});
+					let sessionAuthStatus = null;
+					const sessionUser = await fetch(`${AI_API_BASE_URL}/auths/`, {
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${localStorage.token}`
+						},
+						credentials: 'include'
+					})
+						.then(async (res) => {
+							if (!res.ok) {
+								sessionAuthStatus = res.status;
+								let detail = `HTTP ${res.status}`;
+								try {
+									const payload = await res.json();
+									detail = payload?.detail ?? detail;
+								} catch (e) {}
+								throw new Error(detail);
+							}
+							return res.json();
+						})
+						.catch((error) => {
+							console.error('Session restore failed:', error);
+							return null;
+						});
 
 					if (sessionUser) {
 						await user.set(sessionUser);
+						localStorage.setItem(SESSION_USER_CACHE_KEY, JSON.stringify(sessionUser));
 						try {
 							await config.set(await getBackendConfig());
 						} catch (error) {
@@ -1056,9 +1079,30 @@
 								.catch(() => {});
 						}
 					} else {
-						// Redirect Invalid Session User to /auth Page
-						localStorage.removeItem('token');
-						await goto(`/auth?redirect=${encodedUrl}`);
+						const unauthorized = sessionAuthStatus === 401 || sessionAuthStatus === 403;
+						if (unauthorized) {
+							// Redirect Invalid Session User to /auth Page
+							localStorage.removeItem('token');
+							localStorage.removeItem(SESSION_USER_CACHE_KEY);
+							await goto(`/auth?redirect=${encodedUrl}`);
+						} else {
+							// Temporary backend/network issue: keep token and restore last known session.
+							const cachedSessionUser = localStorage.getItem(SESSION_USER_CACHE_KEY);
+							if (cachedSessionUser) {
+								try {
+									const parsedUser = JSON.parse(cachedSessionUser);
+									await user.set(parsedUser);
+									toast.warning($i18n.t('Connection issue detected. Restored cached session.'));
+								} catch (e) {
+									console.error('Failed to parse cached session user', e);
+									toast.error($i18n.t('Unable to restore session. Please sign in again.'));
+									await goto(`/auth?redirect=${encodedUrl}`);
+								}
+							} else {
+								toast.error($i18n.t('Unable to restore session. Please sign in again.'));
+								await goto(`/auth?redirect=${encodedUrl}`);
+							}
+						}
 					}
 				} else {
 					// Don't redirect if we're already on the auth page
@@ -1084,6 +1128,16 @@
 			showSyncStatsModal = true;
 		}
 
+		loaded = true;
+
+		const splash = document.getElementById('splash-screen');
+		if (splash) {
+			splash.style.opacity = '0';
+			setTimeout(() => {
+				splash.remove();
+			}, 500);
+		}
+
 		return () => {
 			window.removeEventListener('resize', onResize);
 			window.removeEventListener('message', windowMessageEventHandler);
@@ -1101,7 +1155,7 @@
 
 <svelte:head>
 	<title>{$AI_NAME}</title>
-	<link crossorigin="anonymous" rel="icon" href="{AI_BASE_URL}/static/favicon.png" />
+	<link rel="icon" href={`/favicon.png?${Date.now()}`} />
 
 	<meta name="apple-mobile-web-app-title" content={$AI_NAME} />
 	<meta name="description" content={$AI_NAME} />
@@ -1120,7 +1174,6 @@
 	</div>
 {/if}
 
-{#if loaded}
 	{#if $isApp}
 		<div class="flex flex-row h-screen">
 			<AppSidebar />
@@ -1132,7 +1185,6 @@
 	{:else}
 		<slot />
 	{/if}
-{/if}
 
 {#if $config?.features.enable_community_sharing}
 	<SyncStatsModal bind:show={showSyncStatsModal} eventData={syncStatsEventData} />

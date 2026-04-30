@@ -3,8 +3,11 @@ import { browser, dev } from '$app/environment';
 
 export const APP_NAME = 'Arfanity AI';
 
-export const AI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
-export const AI_BASE_URL = browser ? (dev ? `http://${AI_HOSTNAME}` : ``) : ``;
+const ENV_BASE_URL = (import.meta.env.PUBLIC_AI_BASE_URL ?? '').trim().replace(/\/+$/, '');
+const ENV_PORT = (import.meta.env.PUBLIC_AI_PORT ?? '8080').trim();
+
+export const AI_HOSTNAME = browser ? (dev ? `${location.hostname}:${ENV_PORT}` : ``) : '';
+export const AI_BASE_URL = browser ? (ENV_BASE_URL || (dev ? `http://${AI_HOSTNAME}` : ``)) : ``;
 export const AI_API_BASE_URL = `${AI_BASE_URL}/api/v1`;
 
 export const OLLAMA_API_BASE_URL = `${AI_BASE_URL}/ollama`;

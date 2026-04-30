@@ -122,8 +122,7 @@
 						><path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="M15.75 19.5 8.25 12l7.5-7.5"
-						/></svg
+							d="M15.75 19.5 8.25 12l7.5-7.5"></path></svg
 					>
 				</button>
 				<button
@@ -140,8 +139,7 @@
 						><path
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							d="m8.25 4.5 7.5 7.5-7.5 7.5"
-						/></svg
+							d="m8.25 4.5 7.5 7.5-7.5 7.5"></path></svg
 					>
 				</button>
 			</div>
@@ -222,7 +220,7 @@
 								stroke="currentColor"
 								class="size-3"
 							>
-								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
 							</svg>
 						</span>
 					{/if}

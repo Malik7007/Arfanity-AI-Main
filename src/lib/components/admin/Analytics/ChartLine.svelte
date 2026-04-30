@@ -58,8 +58,7 @@
 				fill="none"
 				stroke={colorMap.get(m)}
 				stroke-width="1.5"
-				class={hovered && !hovered.models?.[m] ? 'opacity-20' : ''}
-			/>
+				class={hovered && !hovered.models?.[m] ? 'opacity-20' : ''}></path>
 		{/each}
 		{#if hoveredIdx !== null}
 			<line

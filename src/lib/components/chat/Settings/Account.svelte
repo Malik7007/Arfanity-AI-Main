@@ -161,13 +161,13 @@
 							<div class=" mb-1 text-xs font-medium">{$i18n.t('Bio')}</div>
 
 							<div class="flex-1">
-								<textarea
+								<Textarea
 									className="w-full text-sm dark:text-gray-300 bg-transparent outline-hidden"
 									minSize={60}
 									bind:value={bio}
 									ariaLabel={$i18n.t('Bio')}
 									placeholder={$i18n.t('Share your background and interests')}
-								></textarea>
+								/>
 							</div>
 						</div>
 
@@ -298,8 +298,7 @@
 											<path
 												fill-rule="evenodd"
 												d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-												clip-rule="evenodd"
-											/>
+												clip-rule="evenodd"></path>
 										</svg>
 									{:else}
 										<svg
@@ -311,13 +310,11 @@
 											<path
 												fill-rule="evenodd"
 												d="M11.986 3H12a2 2 0 0 1 2 2v6a2 2 0 0 1-1.5 1.937V7A2.5 2.5 0 0 0 10 4.5H4.063A2 2 0 0 1 6 3h.014A2.25 2.25 0 0 1 8.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM10.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3Z"
-												clip-rule="evenodd"
-											/>
+												clip-rule="evenodd"></path>
 											<path
 												fill-rule="evenodd"
 												d="M3 6a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H3Zm1.75 2.5a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5h-3.5ZM4 11.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"
-												clip-rule="evenodd"
-											/>
+												clip-rule="evenodd"></path>
 										</svg>
 									{/if}
 								</button>
@@ -357,8 +354,7 @@
 												<path
 													fill-rule="evenodd"
 													d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-													clip-rule="evenodd"
-												/>
+													clip-rule="evenodd"></path>
 											</svg>
 										{:else}
 											<svg
@@ -370,13 +366,11 @@
 												<path
 													fill-rule="evenodd"
 													d="M11.986 3H12a2 2 0 0 1 2 2v6a2 2 0 0 1-1.5 1.937V7A2.5 2.5 0 0 0 10 4.5H4.063A2 2 0 0 1 6 3h.014A2.25 2.25 0 0 1 8.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM10.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3Z"
-													clip-rule="evenodd"
-												/>
+													clip-rule="evenodd"></path>
 												<path
 													fill-rule="evenodd"
 													d="M3 6a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H3Zm1.75 2.5a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5h-3.5ZM4 11.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z"
-													clip-rule="evenodd"
-												/>
+													clip-rule="evenodd"></path>
 											</svg>
 										{/if}
 									</button>
@@ -400,8 +394,7 @@
 												<path
 													stroke-linecap="round"
 													stroke-linejoin="round"
-													d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-												/>
+													d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"></path>
 											</svg>
 										</button>
 									</Tooltip>

@@ -109,14 +109,14 @@
 							placement="top-start"
 							tippyOptions={{ duration: [500, 0] }}
 						>
-							<a 
+							<a
 								class="hover:text-gray-500 dark:hover:text-gray-100 underline grow line-clamp-1"
 								href={document?.metadata?.file_id
 									? `${AI_API_BASE_URL}/files/${document?.metadata?.file_id}/content${document?.metadata?.page !== undefined ? `#page=${document.metadata.page + 1}` : ''}`
 									: document.source?.url?.includes('http')
 										? document.source.url
 										: `#`}
-								target="_blank" rel="noopener noreferrer" 
+								target="_blank"
 							>
 								{decodeString(citation?.source?.name)}
 							</a>
@@ -163,9 +163,9 @@
 								{#if document.source?.url?.includes('http')}
 									{@const snippetUrl = getTextFragmentUrl(document)}
 									{#if snippetUrl}
-										<a 
+										<a
 											href={snippetUrl}
-											target="_blank" rel="noopener noreferrer" 
+											target="_blank"
 											class="underline hover:text-gray-500 dark:hover:text-gray-100"
 											>{$i18n.t('Content')}</a
 										>

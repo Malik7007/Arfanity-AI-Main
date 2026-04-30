@@ -97,7 +97,7 @@
 						<ul class="mt-1 list-disc pl-4 text-xs">
 							{#each codeExecution?.result?.files as file}
 								<li>
-									<a  href={file.url} target="_blank" rel="noopener noreferrer" >{file.name}</a>
+									<a href={file.url} target="_blank">{file.name}</a>
 								</li>
 							{/each}
 						</ul>

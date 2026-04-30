@@ -23,9 +23,9 @@
 		slot="content"
 	>
 		{#if status?.query}
-			<a 
+			<a
 				href="https://www.google.com/search?q={status.query}"
-				target="_blank" rel="noopener noreferrer" 
+				target="_blank"
 				class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 font-normal! no-underline!"
 			>
 				<div class="flex gap-2 items-center">
@@ -49,8 +49,7 @@
 						<path
 							fill-rule="evenodd"
 							d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-							clip-rule="evenodd"
-						/>
+							clip-rule="evenodd"></path>
 					</svg>
 				</div>
 			</a>
@@ -58,9 +57,9 @@
 
 		{#if status?.items}
 			{#each status.items as item, itemIdx}
-				<a 
+				<a
 					href={item.link}
-					target="_blank" rel="noopener noreferrer" 
+					target="_blank"
 					class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-850 rounded-lg font-normal! no-underline! mb-1"
 				>
 					<div class=" flex justify-center items-center gap-3">
@@ -90,17 +89,16 @@
 							<path
 								fill-rule="evenodd"
 								d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-								clip-rule="evenodd"
-							/>
+								clip-rule="evenodd"></path>
 						</svg>
 					</div>
 				</a>
 			{/each}
 		{:else if status?.urls}
 			{#each status.urls as url, urlIdx}
-				<a 
+				<a
 					href={url}
-					target="_blank" rel="noopener noreferrer" 
+					target="_blank"
 					class="flex w-full items-center p-1 px-3 group/item justify-between text-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-850 rounded-lg no-underline mb-1"
 				>
 					<div class=" flex justify-center items-center gap-3">
@@ -130,8 +128,7 @@
 							<path
 								fill-rule="evenodd"
 								d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-								clip-rule="evenodd"
-							/>
+								clip-rule="evenodd"></path>
 						</svg>
 					</div>
 				</a>

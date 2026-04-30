@@ -75,10 +75,10 @@
 
 			<div class="px-5 pb-5 w-full flex flex-col justify-center">
 				<div class=" text-xs text-gray-600 dark:text-gray-300 mb-2">
-					{$i18n.t('Arfanity AI can use tools provided by any OpenAPI server.')} <br /><a 
+					{$i18n.t('Arfanity AI can use tools provided by any OpenAPI server.')} <br /><a
 						class="underline"
-						href="https://github.com/arfanity-ai/openapi-servers"
-						target="_blank" rel="noopener noreferrer" >{$i18n.t('Learn more about OpenAPI tool servers.')}</a
+						href="https://github.com/Malik7007/Arfanity-AI-Main"
+						target="_blank">{$i18n.t('Learn more about OpenAPI tool servers.')}</a
 					>
 				</div>
 				<div class=" text-sm dark:text-gray-300 mb-1">

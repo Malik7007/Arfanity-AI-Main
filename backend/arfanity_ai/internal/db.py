@@ -402,7 +402,7 @@ async def get_async_db():
 @asynccontextmanager
 async def get_async_db_context(db: Optional[AsyncSession] = None):
     """Async context manager that reuses an existing session if provided and session sharing is enabled."""
-    if isinstance(db, AsyncSession) and DATABASE_ENABLE_SESSION_SHARING:
+    if isinstance(db, AsyncSession):
         yield db
     else:
         async with get_async_db() as session:

@@ -174,8 +174,7 @@
 			<path
 				stroke-linecap="round"
 				stroke-linejoin="round"
-				d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-			/>
+				d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
 		</svg>
 		<span class="whitespace-nowrap">{scheduleLabel}</span>
 		<svg
@@ -186,7 +185,7 @@
 			stroke="currentColor"
 			class="size-2.5"
 		>
-			<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+			<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"></path>
 		</svg>
 	</button>
 

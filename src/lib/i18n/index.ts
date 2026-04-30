@@ -6,6 +6,13 @@ import { writable } from 'svelte/store';
 
 const createI18nStore = (i18n: i18nType) => {
 	const i18nWritable = writable(i18n);
+	const rtlLanguagePrefixes = ['ar', 'he', 'fa', 'ur', 'ug'];
+	const isRtlLanguage = (lang: string) => {
+		if (!lang) return false;
+		const normalized = lang.toLowerCase();
+		const languageCode = normalized.split('-')[0];
+		return rtlLanguagePrefixes.includes(languageCode);
+	};
 
 	i18n.on('initialized', () => {
 		i18nWritable.set(i18n);
@@ -17,8 +24,7 @@ const createI18nStore = (i18n: i18nType) => {
 	i18n.on('languageChanged', (lang) => {
 		i18nWritable.set(i18n);
 		if (typeof document !== 'undefined') {
-			const rtlLanguages = ['ar', 'ar-BH', 'he-IL', 'fa-IR', 'ur-PK', 'ug-CN'];
-			const isRTL = rtlLanguages.includes(lang);
+			const isRTL = isRtlLanguage(lang);
 			document.documentElement.setAttribute('lang', lang);
 			document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
 
@@ -89,8 +95,10 @@ export const getLanguages = async () => {
 	return languages;
 };
 export const changeLanguage = (lang: string) => {
-	const rtlLanguages = ['ar', 'ar-BH', 'he-IL', 'fa-IR', 'ur-PK', 'ug-CN'];
-	const isRTL = rtlLanguages.includes(lang);
+	const rtlLanguagePrefixes = ['ar', 'he', 'fa', 'ur', 'ug'];
+	const normalized = lang?.toLowerCase?.() ?? '';
+	const languageCode = normalized.split('-')[0];
+	const isRTL = rtlLanguagePrefixes.includes(languageCode);
 	document.documentElement.setAttribute('lang', lang);
 	document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
 

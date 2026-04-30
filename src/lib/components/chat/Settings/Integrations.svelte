@@ -128,10 +128,10 @@
 					</div>
 
 					<div class="text-xs text-gray-600 dark:text-gray-300 mb-2">
-						<a 
+						<a
 							class="underline"
-							href="https://github.com/arfanity-ai/openapi-servers"
-							target="_blank" rel="noopener noreferrer" >{$i18n.t('Learn more about OpenAPI tool servers.')} ↗</a
+							href="https://github.com/Malik7007/Arfanity-AI-Main"
+							target="_blank">{$i18n.t('Learn more about OpenAPI tool servers.')} ↗</a
 						>
 					</div>
 				</div>
@@ -151,10 +151,10 @@
 						</div>
 
 						<div class="text-xs text-gray-600 dark:text-gray-300 mt-1">
-							<a 
+							<a
 								class="underline"
-								href="https://github.com/arfanity-ai/open-terminal"
-								target="_blank" rel="noopener noreferrer" >{$i18n.t('Learn more about Open Terminal')} ↗</a
+								href="https://github.com/Malik7007/Arfanity-AI-Main"
+								target="_blank">{$i18n.t('Learn more about Open Terminal')} ↗</a
 							>
 						</div>
 					</div>

@@ -75,7 +75,7 @@
 <nav
 	class="sticky top-0 z-30 w-full {chat?.id
 		? 'pt-0.5 pb-1'
-		: 'pt-1 pb-1'} -mb-12 flex flex-col items-center drag-region {$user?.role !== 'admin' ? 'advanced-navbar' : ''}"
+		: 'pt-1 pb-1'} -mb-12 flex flex-col items-center drag-region"
 >
 	<div class="flex items-center w-full pl-1.5 pr-1">
 		<div
@@ -85,31 +85,30 @@
 				: 'invisible'} bg-linear-to-b via-40% to-97% from-white/90 via-white/50 to-transparent dark:from-gray-900/90 dark:via-gray-900/50 dark:to-transparent pointer-events-none absolute inset-0 -bottom-10 z-[-1]"
 		></div>
 
-		<div class=" flex max-w-full w-full mx-auto px-1.5 md:px-2 pt-0.5 bg-transparent">
+		<div class="relative flex max-w-full w-full mx-auto px-1.5 md:px-2 pt-0.5 bg-transparent">
 			<div class="flex items-center w-full max-w-full">
-				<div class="flex flex-1 justify-start">
-					{#if $mobile && !$showSidebar}
-						<div
-							class="-translate-x-0.5 mr-1 mt-1 self-start flex flex-none items-center text-gray-600 dark:text-gray-400"
-						>
-							<Tooltip content={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}>
-								<button
-									class=" cursor-pointer flex rounded-lg hover:bg-gray-100 dark:hover:bg-gray-850 transition"
-									on:click={() => {
-										showSidebar.set(!$showSidebar);
-									}}
-								>
-									<div class=" self-center p-1.5">
-										<Sidebar />
-									</div>
-								</button>
-							</Tooltip>
-						</div>
-					{/if}
-				</div>
+				{#if $mobile && !$showSidebar}
+					<div
+						class="-translate-x-0.5 mr-1 mt-1 self-start flex flex-none items-center text-gray-600 dark:text-gray-400"
+					>
+						<Tooltip content={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}>
+							<button
+								class=" cursor-pointer flex rounded-lg hover:bg-gray-100 dark:hover:bg-gray-850 transition"
+								on:click={() => {
+									showSidebar.set(!$showSidebar);
+								}}
+							>
+								<div class=" self-center p-1.5">
+									<Sidebar />
+								</div>
+							</button>
+						</Tooltip>
+					</div>
+				{/if}
 
 				<div
-					class="flex flex-1 justify-center overflow-hidden max-w-full mt-0.5 py-0.5
+					class="flex-1 overflow-hidden max-w-full mt-0.5 py-0.5 flex justify-center items-center
+			md:absolute md:left-1/2 md:-translate-x-1/2 md:w-auto md:max-w-[60vw]
 			{$showSidebar ? 'ml-1' : ''}
 			"
 				>
@@ -118,8 +117,10 @@
 					{/if}
 				</div>
 
-				<div class="flex flex-1 justify-end self-start items-center text-gray-600 dark:text-gray-400">
-					<!-- <div class="md:hidden flex self-center w-[1px] h-5 mx-2 bg-gray-300 dark:bg-stone-700" ></div> -->
+				<div
+					class="self-start flex flex-none items-center text-gray-600 dark:text-gray-400 ml-auto"
+				>
+					<!-- <div class="md:hidden flex self-center w-[1px] h-5 mx-2 bg-gray-300 dark:bg-stone-700"></div> -->
 
 					{#if $user?.role === 'user' ? ($user?.permissions?.chat?.temporary ?? true) && !($user?.permissions?.chat?.temporary_enforced ?? false) : true}
 						{#if !chat?.id}
@@ -322,4 +323,3 @@
 		{/if}
 	</div>
 </nav>
-

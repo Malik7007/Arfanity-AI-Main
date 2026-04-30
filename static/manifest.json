@@ -1,1 +1,22 @@
-{}
+{
+	"name": "Arfanity AI",
+	"short_name": "Arfanity",
+	"description": "Advanced AI conversational platform and task automation tool.",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#171717",
+	"theme_color": "#171717",
+	"orientation": "portrait-primary",
+	"icons": [
+		{
+			"src": "/static/favicon.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/static/favicon-96x96.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}

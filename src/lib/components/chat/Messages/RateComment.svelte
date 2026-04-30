@@ -221,8 +221,7 @@
 			class="w-full text-sm px-1 py-2 bg-transparent outline-hidden resize-none rounded-xl"
 			placeholder={$i18n.t('Feel free to add specific details')}
 			aria-label={$i18n.t('Additional feedback comments')}
-			rows="3"
-		></textarea>
+			rows="3"></textarea>
 	</div>
 
 	<div class="mt-2 gap-1.5 flex justify-between">
@@ -255,9 +254,9 @@
 
 	{#if $config?.features.enable_community_sharing && message?.model}
 		<div class="mt-3 pt-3 border-t border-gray-100/30 dark:border-gray-850/30">
-			<a 
-				href={`#/models?q=${encodeURIComponent(message.model)}`}
-				target="_blank" rel="noopener noreferrer" 
+			<a
+				href={`https://github.com/Malik7007/Arfanity-AI-Main?q=${encodeURIComponent(message.model)}`}
+				target="_blank"
 				class="flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full px-3 py-2 rounded-xl transition"
 			>
 				<div class="self-center">
@@ -273,4 +272,3 @@
 		</div>
 	{/if}
 </div>
-

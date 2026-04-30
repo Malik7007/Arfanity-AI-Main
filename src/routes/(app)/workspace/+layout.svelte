@@ -155,6 +155,7 @@
 								href="/workspace/workflows"
 							>
 								{$i18n.t('Workflows')}
+								<span class="ml-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded-md uppercase font-bold text-gray-500">{$i18n.t('Coming Soon')}</span>
 							</a>
 						{/if}
 					</div>

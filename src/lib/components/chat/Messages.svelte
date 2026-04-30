@@ -442,7 +442,7 @@
 	};
 </script>
 
-<div class="{className} {user?.role !== 'admin' ? 'advanced-chat' : ''}">
+<div class={className}>
 	{#if Object.keys(history?.messages ?? {}).length == 0}
 		<ChatPlaceholder modelIds={selectedModels} {atSelectedModel} {onSelect} />
 	{:else}
@@ -497,12 +497,11 @@
 						{/each}
 					</ul>
 				</section>
-				<div class="pb-18" ></div>
+				<div class="pb-18"></div>
 				{#if bottomPadding}
-					<div class="  pb-6" ></div>
+					<div class="  pb-6"></div>
 				{/if}
 			{/key}
 		</div>
 	{/if}
 </div>
-

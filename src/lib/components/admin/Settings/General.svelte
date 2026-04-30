@@ -11,7 +11,7 @@
 		updateLdapConfig,
 		updateLdapServer
 	} from '$lib/apis/auths';
-	import { getBanners, setBanners } from '$lib/apis/configs';
+	import { getBanners, setBanners, updateLogo } from '$lib/apis/configs';
 	import { getGroups } from '$lib/apis/groups';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -102,6 +102,21 @@
 			saveHandler();
 		} else {
 			toast.error($i18n.t('Failed to update settings'));
+		}
+	};
+
+	let logoFile = null;
+
+	const logoUploadHandler = async () => {
+		const res = await updateLogo(localStorage.token, logoFile).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+
+		if (res) {
+			toast.success($i18n.t('Logo updated successfully'));
+			// Trigger a reload of the logo across the app
+			window.location.reload();
 		}
 	};
 
@@ -296,6 +311,49 @@
 							>
 								{$i18n.t('Activate')}
 							</button> -->
+						</div>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<div class=" mt-0.5 mb-2.5 text-base font-medium">{$i18n.t('Branding')}</div>
+
+					<hr class=" border-gray-100/30 dark:border-gray-850/30 my-2" />
+
+					<div class="mb-2.5 flex w-full justify-between items-center pr-2">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Logo')}</div>
+
+						<div class="flex items-center gap-2">
+							<input
+								type="file"
+								class="hidden"
+								accept="image/*"
+								bind:this={logoFile}
+								on:change={async (e) => {
+									const file = e.target.files[0];
+									if (file) {
+										const res = await updateLogo(localStorage.token, file).catch((error) => {
+											toast.error(`${error}`);
+											return null;
+										});
+
+										if (res) {
+											toast.success($i18n.t('Logo updated successfully'));
+											window.location.reload();
+										}
+									}
+								}}
+							/>
+
+							<button
+								class=" text-xs px-3 py-1.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-lg font-medium"
+								type="button"
+								on:click={() => {
+									logoFile.click();
+								}}
+							>
+								{$i18n.t('Upload')}
+							</button>
 						</div>
 					</div>
 				</div>
@@ -880,8 +938,7 @@
 									class="w-4 h-4"
 								>
 									<path
-										d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-									/>
+										d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"></path>
 								</svg>
 							</button>
 						</div>

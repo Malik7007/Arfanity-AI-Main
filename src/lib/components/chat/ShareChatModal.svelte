@@ -40,7 +40,7 @@
 		console.log('share', _chat);
 
 		toast.success($i18n.t('Redirecting you to Arfanity AI Community'));
-		const url = '#';
+		const url = 'https://github.com/Malik7007/Arfanity-AI-Main';
 		// const url = 'http://localhost:5173';
 
 		const tab = await window.open(`${url}/chats/upload`, '_blank');
@@ -129,7 +129,7 @@
 			<div class="px-5 pt-4 pb-5 w-full flex flex-col">
 				<div class="text-sm dark:text-gray-300">
 					{#if chat.share_id}
-						<a  href="/s/{chat.share_id}" target="_blank" rel="noopener noreferrer" 
+						<a href="/s/{chat.share_id}" target="_blank"
 							>{$i18n.t('You have shared this chat')}
 							<span class=" underline">{$i18n.t('before')}</span>.</a
 						>

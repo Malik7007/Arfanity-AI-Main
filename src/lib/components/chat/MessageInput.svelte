@@ -1183,8 +1183,7 @@
 									<path
 										fill-rule="evenodd"
 										d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-										clip-rule="evenodd"
-									/>
+										clip-rule="evenodd"></path>
 								</svg>
 							</button>
 						</div>
@@ -1283,7 +1282,9 @@
 
 						<div
 							id="message-input-container"
-							class="flex-1 flex flex-col relative w-full transition px-1 {$user?.role !== 'admin' ? 'advanced-input-container' : 'shadow-lg rounded-3xl border ' + ($temporaryChatEnabled ? 'border-dashed border-gray-100 dark:border-gray-800 hover:border-gray-200 focus-within:border-gray-200 hover:dark:border-gray-700 focus-within:dark:border-gray-700' : 'border-gray-100/30 dark:border-gray-850/30 hover:border-gray-200 focus-within:border-gray-100 hover:dark:border-gray-800 focus-within:dark:border-gray-800') + ' bg-white/5 dark:bg-gray-500/5 backdrop-blur-sm dark:text-gray-100'}"
+							class="flex-1 flex flex-col relative w-full shadow-lg rounded-3xl border {$temporaryChatEnabled
+								? 'border-dashed border-gray-100 dark:border-gray-800 hover:border-gray-200 focus-within:border-gray-200 hover:dark:border-gray-700 focus-within:dark:border-gray-700'
+								: ' border-gray-100/30 dark:border-gray-850/30 hover:border-gray-200 focus-within:border-gray-100 hover:dark:border-gray-800 focus-within:dark:border-gray-800'}  transition px-1 bg-white/5 dark:bg-gray-500/5 backdrop-blur-sm dark:text-gray-100"
 							dir={$settings?.chatDirection ?? 'auto'}
 						>
 							{#if atSelectedModel !== undefined}
@@ -1350,8 +1351,7 @@
 																<path
 																	fill-rule="evenodd"
 																	d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
-																	clip-rule="evenodd"
-																/>
+																	clip-rule="evenodd"></path>
 															</svg>
 														</Tooltip>
 													{/if}
@@ -1377,8 +1377,7 @@
 															class="size-4"
 														>
 															<path
-																d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-															/>
+																d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"></path>
 														</svg>
 													</button>
 												</div>
@@ -1668,8 +1667,7 @@
 
 									{#if showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton || showToolsButton || (toggleFilters && toggleFilters.length > 0)}
 										<div
-											class="flex self-center w-[1px] h-4 mx-1 bg-gray-200/50 dark:bg-gray-800/50"
-										></div>
+											class="flex self-center w-[1px] h-4 mx-1 bg-gray-200/50 dark:bg-gray-800/50"></div>
 
 										<IntegrationsMenu
 											selectedModels={atSelectedModel ? [atSelectedModel.id] : selectedModels}
@@ -1699,7 +1697,7 @@
 										>
 											<div
 												id="integration-menu-button"
-												class="{$user?.role !== 'admin' ? 'premium-action-btn' : 'bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden'}"
+												class="bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden"
 											>
 												<Component className="size-4.5" strokeWidth="1.5" />
 											</div>
@@ -1712,7 +1710,7 @@
 												<button
 													type="button"
 													id="model-valves-button"
-													class="{$user?.role !== 'admin' ? 'premium-action-btn' : 'bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden'}"
+													class="bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden"
 													on:click={() => {
 														selectedValvesType = 'function';
 														selectedValvesItemId = selectedModelIds[0]?.split('.')[0];
@@ -1913,8 +1911,7 @@
 														<path
 															fill-rule="evenodd"
 															d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm6-2.438c0-.724.588-1.312 1.313-1.312h4.874c.725 0 1.313.588 1.313 1.313v4.874c0 .725-.588 1.313-1.313 1.313H9.564a1.312 1.312 0 01-1.313-1.313V9.564z"
-															clip-rule="evenodd"
-														/>
+															clip-rule="evenodd"></path>
 													</svg>
 												</button>
 											</Tooltip>
@@ -1987,10 +1984,9 @@
 															fill="currentColor"
 															class="size-5 translate-y-[0.5px]"
 														>
-															<path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
+															<path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"></path>
 															<path
-																d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"
-															/>
+																d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"></path>
 														</svg>
 													</button>
 												</Tooltip>
@@ -2069,11 +2065,9 @@
 												>
 													<button
 														id="send-message-button"
-														class="{$user?.role !== 'admin' ? 'premium-send-btn-circle' : (
-															!(prompt === '' && files.length === 0) || uploadPending
+														class="{!(prompt === '' && files.length === 0) || uploadPending
 															? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-															: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'
-														) + ' transition rounded-full p-1.5 self-center'}"
+															: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
 														type="submit"
 														disabled={(prompt === '' && files.length === 0) || uploadPending}
 													>
@@ -2089,8 +2083,7 @@
 																<path
 																	fill-rule="evenodd"
 																	d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
-																	clip-rule="evenodd"
-																/>
+																	clip-rule="evenodd"></path>
 															</svg>
 														{/if}
 													</button>
@@ -2107,7 +2100,7 @@
 								{@html DOMPurify.sanitize(marked($config?.license_metadata?.input_footer))}
 							</div>
 						{:else}
-							<div class="mb-1" ></div>
+							<div class="mb-1"></div>
 						{/if}
 					</form>
 				</div>
@@ -2115,4 +2108,3 @@
 		</div>
 	</div>
 {/if}
-

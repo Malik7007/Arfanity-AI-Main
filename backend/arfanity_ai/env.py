@@ -208,8 +208,12 @@ for version in soup.find_all('h2'):
     while current and current.name != 'h2':
         if current.name == 'h3':
             section_title = current.get_text().lower()  # e.g., "added", "fixed"
-            section_items = parse_section(current.find_next_sibling('ul'))
-            version_data[section_title] = section_items
+            ul_sibling = current.find_next_sibling('ul')
+            if ul_sibling:
+                section_items = parse_section(ul_sibling)
+                version_data[section_title] = section_items
+            else:
+                version_data[section_title] = []
 
         # Move to the next element
         current = current.find_next_sibling()

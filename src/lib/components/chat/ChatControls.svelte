@@ -352,7 +352,7 @@
 									stroke-width="1.5"
 									class="size-4"
 								>
-									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
 								</svg>
 							</button>
 						</div>
@@ -393,8 +393,7 @@
 			id="controls-resizer"
 		>
 			<div
-				class="absolute -left-1.5 -right-1.5 -top-0 -bottom-0 z-20 cursor-col-resize bg-transparent"
-			></div>
+				class="absolute -left-1.5 -right-1.5 -top-0 -bottom-0 z-20 cursor-col-resize bg-transparent"></div>
 		</PaneResizer>
 	{/if}
 
@@ -498,7 +497,7 @@
 										stroke-width="1.5"
 										class="size-4"
 									>
-										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
 									</svg>
 								</button>
 							</div>
@@ -539,4 +538,3 @@
 		{/if}
 	</Pane>
 {/if}
-

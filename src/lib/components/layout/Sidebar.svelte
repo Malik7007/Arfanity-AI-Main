@@ -1,4 +1,6 @@
 <script lang="ts">
+	let logoUrl = `/static/favicon.png?${Date.now()}`;
+
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 	import Sortable from 'sortablejs';
@@ -289,37 +291,34 @@
 		allChatsLoaded = false;
 		scrollPaginationEnabled.set(false);
 
-		initFolders();
-		Promise.all([
-			(async () => {
-				console.log('Init tags');
-				const _tags = await getAllTags(localStorage.token).catch(() => []);
-				tags.set(_tags);
-			})(),
-			(async () => {
-				console.log('Init pinned chats');
-				const _pinnedChats = await getPinnedChatList(localStorage.token).catch(() => []);
-				pinnedChats.set(_pinnedChats);
-			})(),
-			(async () => {
-				if (
-					$config?.features?.enable_notes &&
-					($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))
-				) {
-					console.log('Init pinned notes');
-					const _pinnedNotes = await getPinnedNoteList(localStorage.token).catch(() => []);
-					pinnedNotes.set(_pinnedNotes);
-				}
-			})(),
-			(async () => {
-				console.log('Init chat list');
-				const _chats = await getChatList(localStorage.token, $currentChatPage).catch(() => []);
-				await chats.set(_chats);
-			})()
-		]);
+		// Fetch the chat list FIRST and render it immediately so the sidebar
+		// appears instantly — just like ChatGPT does. Tags, pinned items, notes,
+		// and folders load in the background without blocking the main list.
+		console.log('Init chat list');
+		const _chats = await getChatList(localStorage.token, $currentChatPage, false, true).catch(
+			() => []
+		);
+		await chats.set(_chats);
 
-		// Enable pagination
+		// Enable pagination immediately so scroll-loading works
 		scrollPaginationEnabled.set(true);
+
+		// Load supporting data in the background — none of these block rendering
+		initFolders();
+		getAllTags(localStorage.token)
+			.then((_tags) => tags.set(_tags))
+			.catch(() => {});
+		getPinnedChatList(localStorage.token)
+			.then((_pinnedChats) => pinnedChats.set(_pinnedChats))
+			.catch(() => {});
+		if (
+			$config?.features?.enable_notes &&
+			($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))
+		) {
+			getPinnedNoteList(localStorage.token)
+				.then((_pinnedNotes) => pinnedNotes.set(_pinnedNotes))
+				.catch(() => {});
+		}
 	};
 
 	const loadMoreChats = async () => {
@@ -329,7 +328,7 @@
 
 		let newChatList = [];
 
-		newChatList = await getChatList(localStorage.token, $currentChatPage);
+		newChatList = await getChatList(localStorage.token, $currentChatPage, false, true);
 
 		// once the bottom of the list has been reached (no results) there is no need to continue querying
 		allChatsLoaded = newChatList.length === 0;
@@ -430,7 +429,9 @@
 	function checkDirection() {
 		const screenWidth = window.innerWidth;
 		const swipeDistance = Math.abs(touchend.screenX - touchstart.screenX);
-		if (touchstart.clientX < 40 && swipeDistance >= screenWidth / 8) {
+		const startedFromSidebarEdge = touchstart.clientX < 40;
+
+		if (startedFromSidebarEdge && swipeDistance >= screenWidth / 8) {
 			if (touchend.screenX < touchstart.screenX) {
 				showSidebar.set(false);
 			}
@@ -496,8 +497,7 @@
 	};
 
 	const resizeSidebarHandler = (endClientX) => {
-		const isRTL = document.documentElement.dir === 'rtl';
-		const dx = isRTL ? startClientX - endClientX : endClientX - startClientX;
+		const dx = endClientX - startClientX;
 		const newSidebarWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + dx));
 
 		sidebarWidth.set(newSidebarWidth);
@@ -551,24 +551,21 @@
 				}
 
 				if (value) {
-					// Only fetch channels if the feature is enabled and user has permission
+					// Fire channels and chat list in parallel — don't let one block the other
 					if (
 						$config?.features?.enable_channels &&
 						($user?.role === 'admin' || ($user?.permissions?.features?.channels ?? true))
 					) {
-						await initChannels();
+						initChannels();
 					}
 					await initChatList();
 
-					// Check which chats have active tasks
-					const allChatIds = [...$chats.map((c) => c.id), ...$pinnedChats.map((c) => c.id)];
+					// Check active tasks in the background — no need to block sidebar render
+					const allChatIds = [...($chats ?? []).map((c) => c.id), ...$pinnedChats.map((c) => c.id)];
 					if (allChatIds.length > 0) {
-						try {
-							const res = await checkActiveChats(localStorage.token, allChatIds);
-							activeChatIds.set(new Set(res.active_chat_ids || []));
-						} catch (e) {
-							console.debug('Failed to check active chats:', e);
-						}
+						checkActiveChats(localStorage.token, allChatIds)
+							.then((res) => activeChatIds.set(new Set(res.active_chat_ids || [])))
+							.catch((e) => console.debug('Failed to check active chats:', e));
 					}
 				}
 			}),
@@ -648,6 +645,7 @@
 
 	const newChatHandler = async () => {
 		selectedChatId = null;
+		chatId.set('');
 		selectedFolder.set(null);
 
 		if ($user?.role !== 'admin' && $user?.permissions?.chat?.temporary_enforced) {
@@ -803,7 +801,7 @@
 					>
 						<div class=" self-center flex items-center justify-center size-9">
 							<img
-								src="{AI_BASE_URL}/static/favicon.png"
+								src={logoUrl}
 								class="sidebar-new-chat-icon size-6 rounded-full group-hover:hidden"
 								alt=""
 							/>
@@ -889,8 +887,7 @@
 												<path
 													stroke-linecap="round"
 													stroke-linejoin="round"
-													d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"
-												/>
+													d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"></path>
 											</svg>
 										{:else if itemId === 'automations'}
 											<svg
@@ -904,8 +901,7 @@
 												<path
 													stroke-linecap="round"
 													stroke-linejoin="round"
-													d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-												/>
+													d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
 											</svg>
 										{:else if itemId === 'calendar'}
 											<svg
@@ -919,8 +915,7 @@
 												<path
 													stroke-linecap="round"
 													stroke-linejoin="round"
-													d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-												/>
+													d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"></path>
 											</svg>
 										{:else if itemId === 'playground'}
 											<Code className="size-4.5" />
@@ -990,8 +985,8 @@
 		class="h-screen max-h-[100dvh] min-h-screen select-none {$showSidebar
 			? `${$mobile ? 'bg-gray-50 dark:bg-gray-950' : ($user?.role !== 'admin' ? 'advanced-sidebar' : 'bg-gray-50/70 dark:bg-gray-950/70')} z-50`
 			: ' bg-transparent z-0 '} {$isApp
-			? `ms-[4.5rem] md:ms-0 `
-			: ' transition-all duration-300 '} shrink-0 text-gray-900 dark:text-gray-200 text-sm {$mobile ? 'fixed top-0 ltr:left-0 rtl:right-0' : 'relative'} overflow-x-hidden
+			? `ml-[4.5rem] md:ml-0 `
+			: ' transition-all duration-300 '} shrink-0 text-gray-900 dark:text-gray-200 text-sm {$mobile ? 'fixed top-0 left-0' : 'relative'} overflow-x-hidden
         "
 		transition:slide={{ duration: 250, axis: 'x' }}
 		data-state={$showSidebar}
@@ -1012,7 +1007,7 @@
 				>
 					<img
 						crossorigin="anonymous"
-						src="{AI_BASE_URL}/static/favicon.png"
+						src={logoUrl}
 						class="sidebar-new-chat-icon size-6 rounded-full"
 						alt=""
 					/>
@@ -1124,8 +1119,7 @@
 													<path
 														stroke-linecap="round"
 														stroke-linejoin="round"
-														d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"
-													/>
+														d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"></path>
 												</svg>
 											{:else if itemId === 'automations'}
 												<svg
@@ -1139,8 +1133,7 @@
 													<path
 														stroke-linecap="round"
 														stroke-linejoin="round"
-														d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-													/>
+														d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
 												</svg>
 											{:else if itemId === 'calendar'}
 												<svg
@@ -1154,8 +1147,7 @@
 													<path
 														stroke-linecap="round"
 														stroke-linejoin="round"
-														d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-													/>
+														d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"></path>
 												</svg>
 											{:else if itemId === 'playground'}
 												<Code className="size-4.5" strokeWidth="2" />
@@ -1239,8 +1231,7 @@
 											<path
 												stroke-linecap="round"
 												stroke-linejoin="round"
-												d="M6 18 18 6M6 6l12 12"
-											/>
+												d="M6 18 18 6M6 6l12 12"></path>
 										</svg>
 									</button>
 								</a>
@@ -1596,7 +1587,7 @@
 							<div
 								class=" flex items-center rounded-2xl py-2 px-1.5 w-full transition {$user?.role !== 'admin' ? 'hover:bg-white/40 dark:hover:bg-white/5 shadow-sm border border-transparent hover:border-gray-200/50 dark:hover:border-white/5 mx-1' : 'hover:bg-gray-100/50 dark:hover:bg-gray-900/50'}"
 							>
-								<div class=" self-center mr-3 relative">
+								<div class=" self-center me-3 relative">
 									<img
 										src={`${AI_API_BASE_URL}/users/${$user?.id}/profile/image`}
 										class=" size-7 object-cover rounded-full"
@@ -1627,7 +1618,7 @@
 
 	{#if !$mobile}
 		<div
-			class="relative flex items-center justify-center group border-l border-gray-50 dark:border-gray-850/30 hover:border-gray-200 dark:hover:border-gray-800 transition z-20"
+			class="relative flex items-center justify-center group border-e border-gray-50 dark:border-gray-850/30 hover:border-gray-200 dark:hover:border-gray-800 transition z-20"
 			id="sidebar-resizer"
 			on:mousedown={resizeStartHandler}
 			role="separator"

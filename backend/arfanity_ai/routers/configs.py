@@ -1,14 +1,15 @@
 import logging
 import copy
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, File, UploadFile
 from pydantic import BaseModel, ConfigDict
 import aiohttp
+import shutil
 
 from typing import Optional
 
 from arfanity_ai.env import AIOHTTP_CLIENT_SESSION_SSL, AIOHTTP_CLIENT_TIMEOUT
 from arfanity_ai.utils.auth import get_admin_user, get_verified_user
-from arfanity_ai.config import get_config, save_config, async_save_config
+from arfanity_ai.config import get_config, save_config, async_save_config, STATIC_DIR
 from arfanity_ai.config import BannerModel
 
 from arfanity_ai.utils.tools import (
@@ -662,3 +663,23 @@ async def get_banners(
     user=Depends(get_verified_user),
 ):
     return request.app.state.config.BANNERS
+
+
+############################
+# UpdateLogo
+############################
+
+
+@router.post('/logo/update')
+async def update_logo(file: UploadFile = File(...), user=Depends(get_admin_user)):
+    if not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail='File must be an image')
+
+    file_path = STATIC_DIR / 'favicon.png'
+    try:
+        with file_path.open('wb') as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {'status': True, 'url': '/favicon.png'}
+    except Exception as e:
+        log.error(f'Error saving logo: {e}')
+        raise HTTPException(status_code=500, detail='Failed to save logo')

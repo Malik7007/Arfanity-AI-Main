@@ -487,8 +487,7 @@
 							: 'bg-indigo-500 dark:bg-indigo-400  '} 
                     
                     inline-block h-full"
-						style="height: {Math.min(100, Math.max(14, rms * 100))}%;"
-					></div>
+						style="height: {Math.min(100, Math.max(14, rms * 100))}%;"></div>
 				</div>
 			{/each}
 		</div>
@@ -616,7 +615,7 @@
 						stroke="currentColor"
 						class="size-4"
 					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
 					</svg>
 				</button>
 			{/if}
@@ -635,4 +634,3 @@
 		background-color: #4a5aba; /* or whatever color you need */
 	}
 </style>
-

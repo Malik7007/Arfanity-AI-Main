@@ -112,7 +112,7 @@
 								By
 								{#if models[selectedModelIdx]?.info?.meta?.user.community}
 									<a
-										href="#/m/{models[selectedModelIdx]?.info?.meta?.user
+										href="https://github.com/Malik7007/{models[selectedModelIdx]?.info?.meta?.user
 											.username}"
 										>{models[selectedModelIdx]?.info?.meta?.user.name
 											? models[selectedModelIdx]?.info?.meta?.user.name

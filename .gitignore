@@ -47,3 +47,8 @@ backend/__pycache__
 backend/data
 backend/*.db
 backend/*.log
+.tmp
+.venv
+venv
+pyodide-data
+static/pyodide

@@ -193,6 +193,9 @@
 	};
 
 	onMount(async () => {
+		// IMMEDIATELY set loaded to true to show the chatroom UI
+		loaded = true;
+
 		if ($user === undefined || $user === null) {
 			await goto('/auth');
 			return;
@@ -394,7 +397,7 @@
 {#if $user}
 	<div class="app relative">
 		<div
-			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden flex flex-row rtl:flex-row-reverse"
+			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-hidden flex flex-row"
 		>
 			{#if !['user', 'admin'].includes($user?.role)}
 				<AccountPending />
@@ -455,18 +458,7 @@
 				{/if}
 
 				<Sidebar />
-
-				{#if loaded}
-					<slot />
-				{:else}
-					<div
-						class="w-full flex-1 h-full flex items-center justify-center {$showSidebar
-							? '  md:max-w-[calc(100%-var(--sidebar-width))]'
-							: ' '}"
-					>
-						<Spinner className="size-5" />
-					</div>
-				{/if}
+				<slot />
 			{/if}
 		</div>
 	</div>

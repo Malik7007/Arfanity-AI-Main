@@ -65,6 +65,7 @@ class Chat(Base):
         Index('folder_id_idx', 'folder_id'),
         Index('user_id_pinned_idx', 'user_id', 'pinned'),
         Index('user_id_archived_idx', 'user_id', 'archived'),
+        Index('user_id_updated_at_idx', 'user_id', 'updated_at'),
         Index('updated_at_user_id_idx', 'updated_at', 'user_id'),
         Index('folder_id_user_id_idx', 'folder_id', 'user_id'),
     )

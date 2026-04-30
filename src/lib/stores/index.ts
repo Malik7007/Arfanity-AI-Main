@@ -58,7 +58,9 @@ export const chatTitle = writable('');
 export const channels = writable([]);
 export const channelId = writable(null);
 
-export const chats = writable(null);
+// Initialize with empty array so the sidebar renders immediately instead of
+// showing a loading spinner while waiting for the first API response
+export const chats = writable([]);
 export const pinnedChats = writable([]);
 export const pinnedNotes = writable([]);
 export const tags = writable([]);

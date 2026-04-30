@@ -126,7 +126,7 @@
 	});
 </script>
 
-<div bind:this={container} class="file-code-editor" ></div>
+<div bind:this={container} class="file-code-editor"></div>
 
 <style>
 	.file-code-editor {
@@ -137,4 +137,3 @@
 		height: 100%;
 	}
 </style>
-

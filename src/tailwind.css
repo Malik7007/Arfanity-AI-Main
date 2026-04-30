@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@source './**/*.{html,js,svelte,ts}';
 
 @config '../tailwind.config.js';
 

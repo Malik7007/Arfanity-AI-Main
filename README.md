@@ -77,6 +77,13 @@
    npm run dev
    ```
 
+   If your backend cannot use port `8080`, set frontend target in `.env`:
+   ```bash
+   PUBLIC_AI_BASE_URL='http://127.0.0.1:8081'
+   # optional fallback if PUBLIC_AI_BASE_URL is empty
+   PUBLIC_AI_PORT='8081'
+   ```
+
 3. **Access the App**:
    - Frontend: `http://localhost:5173`
    - Backend API: `http://localhost:8080`

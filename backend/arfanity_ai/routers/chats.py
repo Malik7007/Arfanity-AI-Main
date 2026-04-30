@@ -58,12 +58,14 @@ async def get_session_user_chat_list(
     include_folders: Optional[bool] = False,
     db: AsyncSession = Depends(get_async_session),
 ):
+    import time
+    start_time = time.time()
     try:
         if page is not None:
             limit = 60
             skip = (page - 1) * limit
 
-            return await Chats.get_chat_title_id_list_by_user_id(
+            result = await Chats.get_chat_title_id_list_by_user_id(
                 user.id,
                 include_folders=include_folders,
                 include_pinned=include_pinned,
@@ -71,13 +73,17 @@ async def get_session_user_chat_list(
                 limit=limit,
                 db=db,
             )
+            log.info(f"get_session_user_chat_list (paginated) took {time.time() - start_time:.4f}s for user {user.id}")
+            return result
         else:
-            return await Chats.get_chat_title_id_list_by_user_id(
+            result = await Chats.get_chat_title_id_list_by_user_id(
                 user.id,
                 include_folders=include_folders,
                 include_pinned=include_pinned,
                 db=db,
             )
+            log.info(f"get_session_user_chat_list (all) took {time.time() - start_time:.4f}s for user {user.id}")
+            return result
     except Exception as e:
         log.exception(e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ERROR_MESSAGES.DEFAULT())
@@ -559,7 +565,12 @@ async def create_new_chat(
     db: AsyncSession = Depends(get_async_session),
 ):
     try:
+        log.info(f"Creating new chat for user {user.id}")
         chat = await Chats.insert_new_chat(str(uuid4()), user.id, form_data, db=db)
+        if chat:
+             log.info(f"Chat created successfully with ID {chat.id}")
+        else:
+             log.warning(f"insert_new_chat returned None for user {user.id}")
         return ChatResponse(**chat.model_dump())
     except Exception as e:
         log.exception(e)

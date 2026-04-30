@@ -28,7 +28,6 @@
 	import Face from '../icons/Face.svelte';
 	import AppNotification from '../icons/AppNotification.svelte';
 	import UserBadgeCheck from '../icons/UserBadgeCheck.svelte';
-	import QuestionMarkCircle from '../icons/QuestionMarkCircle.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -80,8 +79,8 @@
 				'system settings',
 				'theme',
 				'translate',
-				'AIsettings',
-				'AI settings'
+				'aisettings',
+				'ai settings'
 			]
 		},
 		{
@@ -434,12 +433,12 @@
 			keywords: [
 				'about app',
 				'about me',
-				'about Arfanity AI',
+				'about arfanity ai',
 				'about page',
 				'about us',
 				'aboutapp',
 				'aboutme',
-				'aboutArfanity AI',
+				'aboutarfanityai',
 				'aboutpage',
 				'aboutus',
 				'check for updates',
@@ -860,20 +859,6 @@
 						{$i18n.t('No results found')}
 					</div>
 				{/if}
-				<a 
-					href={$user?.role === 'admin' ? '/static/docs/admin_guide.md' : '/static/docs/user_guide.md'}
-					target="_blank" rel="noopener noreferrer" 
-					draggable="false"
-					class="px-0.5 md:px-2.5 py-1 min-w-fit rounded-xl flex-1 md:flex-none flex select-none text-left transition {$settings?.highContrastMode
-						? 'hover:bg-gray-200 dark:hover:bg-gray-800'
-						: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-				>
-					<div class=" self-center mr-2">
-						<QuestionMarkCircle strokeWidth="2" />
-					</div>
-					<div class=" self-center">{$i18n.t('Help & Guide')}</div>
-				</a>
-
 				{#if $user?.role === 'admin'}
 					<a
 						href="/admin/settings"

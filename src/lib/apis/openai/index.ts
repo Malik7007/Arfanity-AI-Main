@@ -377,6 +377,9 @@ export const generateOpenAIChatCompletion = async (
 	})
 		.then(async (res) => {
 			if (!res.ok) throw await res.json();
+			if (res.headers.get('Content-Type')?.includes('text/event-stream')) {
+				return res;
+			}
 			return res.json();
 		})
 		.catch((err) => {

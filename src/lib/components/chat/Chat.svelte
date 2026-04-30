@@ -112,7 +112,7 @@
 
 	export let chatIdProp = '';
 
-	let loading = false;
+	let loading = true;
 
 	const eventTarget = new EventTarget();
 	let controlPane: Pane | undefined;
@@ -443,7 +443,26 @@
 	const chatEventHandler = async (event, cb) => {
 		console.log(event);
 
-		if (event.chat_id === $chatId) {
+		let effectiveChatId = $chatId;
+
+		// If backend starts a new chat asynchronously (task_id first, chat_id arrives on socket),
+		// adopt it immediately so streaming and sidebar history stay in sync.
+		if (
+			!effectiveChatId &&
+			event?.chat_id &&
+			(history.messages[event?.message_id] || generating || (taskIds?.length ?? 0) > 0)
+		) {
+			effectiveChatId = event.chat_id;
+			await chatId.set(effectiveChatId);
+
+			if (!$temporaryChatEnabled) {
+				window.history.replaceState(history.state, '', `/c/${effectiveChatId}`);
+				currentChatPage.set(1);
+				await chats.set(await getChatList(localStorage.token, 1, false, true));
+			}
+		}
+
+		if (event.chat_id === effectiveChatId) {
 			await tick();
 			let message = history.messages[event.message_id];
 
@@ -520,7 +539,7 @@
 				} else if (type === 'chat:title') {
 					chatTitle.set(data);
 					currentChatPage.set(1);
-					await chats.set(await getChatList(localStorage.token, $currentChatPage));
+					await chats.set(await getChatList(localStorage.token, 1, false, true));
 				} else if (type === 'chat:tags') {
 					chat = await getChatById(localStorage.token, $chatId);
 					allTags.set(await getAllTags(localStorage.token));
@@ -697,7 +716,7 @@
 	};
 
 	onMount(() => {
-		loading = false;
+		loading = true;
 		console.log('mounted');
 		window.addEventListener('message', onMessageHandler);
 		$socket?.on('events', chatEventHandler);
@@ -1447,11 +1466,12 @@
 	};
 
 	const chatCompletedHandler = async (_chatId, modelId, responseMessageId, messages) => {
+		const resolvedChatId = _chatId || $chatId;
 		// Backend handles outlet filters and persistence inline.
 		// Just refresh the sidebar chat list.
-		if ($chatId == _chatId && !$temporaryChatEnabled) {
+		if ($chatId == resolvedChatId && !$temporaryChatEnabled) {
 			currentChatPage.set(1);
-			await chats.set(await getChatList(localStorage.token, $currentChatPage));
+			await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 		}
 		taskIds = null;
 	};
@@ -1504,7 +1524,7 @@
 				});
 
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 			}
 		}
 	};
@@ -1979,6 +1999,7 @@
 		}
 
 		let _chatId = JSON.parse(JSON.stringify($chatId));
+		const socketSessionId = $socket?.connected && $socket?.id ? $socket.id : null;
 		_history = structuredClone(_history);
 
 		const responseMessageIds: Record<PropertyKey, string> = {};
@@ -2030,9 +2051,12 @@
 
 		// New chat — backend generates the chat_id on first request
 		if (!_chatId) {
-			if ($temporaryChatEnabled) {
-				_chatId = `local:${$socket?.id}`;
+			if ($temporaryChatEnabled && socketSessionId) {
+				_chatId = `local:${socketSessionId}`;
 				await chatId.set(_chatId);
+			} else if (!$temporaryChatEnabled) {
+				// Create chat upfront so history appears in sidebar immediately.
+				_chatId = await initChatHandler(history);
 			}
 			await tick();
 		}
@@ -2083,7 +2107,8 @@
 				_history,
 				primaryResponseMessageId,
 				_chatId,
-				selectedModelIds.length > 1 ? messageIdsMap : undefined
+				selectedModelIds.length > 1 ? messageIdsMap : undefined,
+				socketSessionId
 			);
 
 			if (chatEventEmitter) clearInterval(chatEventEmitter);
@@ -2148,7 +2173,8 @@
 		_history,
 		responseMessageId,
 		_chatId,
-		messageIdsMap?: Record<string, string>
+		messageIdsMap?: Record<string, string>,
+		socketSessionId: string | null = null
 	) => {
 		const responseMessage = _history.messages[responseMessageId];
 		const userMessage = _history.messages[responseMessage.parentId];
@@ -2339,7 +2365,7 @@
 				},
 				model_item: $models.find((m) => m.id === model.id),
 
-				session_id: $socket?.id,
+				session_id: socketSessionId ?? undefined,
 				chat_id: _chatId || undefined,
 				folder_id: $selectedFolder?.id ?? undefined,
 
@@ -2412,10 +2438,54 @@
 				// and causing spurious toast notifications / state duplication).
 				if (res.chat_id && $chatId !== res.chat_id && $chatId === _chatId) {
 					await chatId.set(res.chat_id);
+					_chatId = res.chat_id;
 					if (!$temporaryChatEnabled) {
 						window.history.replaceState(history.state, '', `/c/${res.chat_id}`);
 						currentChatPage.set(1);
-						await chats.set(await getChatList(localStorage.token, $currentChatPage));
+						await chats.set(await getChatList(localStorage.token, 1, false, true));
+					}
+				}
+
+				// No async task IDs returned: handle direct response path (sync JSON or SSE stream)
+				// so UI still receives content when socket session is unavailable.
+				if (newTaskIds.length === 0) {
+					if (res instanceof Response) {
+						if (res.body) {
+							const textStream = await createOpenAITextStream(res.body, true);
+							for await (const update of textStream) {
+								await chatCompletionEventHandler(
+									{
+										id: responseMessageId,
+										done: update.done,
+										choices: [{ delta: { content: update.value } }],
+										...(update.sources ? { sources: update.sources } : {}),
+										...(update.selectedModelId
+											? { selected_model_id: update.selectedModelId }
+											: {}),
+										...(update.error ? { error: update.error } : {}),
+										...(update.usage ? { usage: update.usage } : {})
+									},
+									responseMessage,
+									_chatId
+								);
+							}
+						}
+					} else {
+						await chatCompletionEventHandler(
+							{
+								id: responseMessageId,
+								...res,
+								done: true
+							},
+							responseMessage,
+							_chatId
+						);
+					}
+
+					// Direct/synchronous path may not return a backend chat_id.
+					// Persist the current thread so it appears in sidebar history.
+					if (!_chatId && !$temporaryChatEnabled) {
+						await initChatHandler(history);
 					}
 				}
 			}
@@ -2665,8 +2735,9 @@
 		let _chatId = $chatId;
 
 		if (!$temporaryChatEnabled) {
-			chat = await createNewChat(
-				localStorage.token,
+			try {
+				chat = await createNewChat(
+					localStorage.token,
 				{
 					id: _chatId,
 					title: $i18n.t('New Chat'),
@@ -2680,16 +2751,21 @@
 				},
 				$selectedFolder?.id
 			);
+			} catch (err) {
+				console.error(err);
+				toast.error(err?.detail ?? err?.message ?? err);
+				return;
+			}
+
 
 			_chatId = chat.id;
 			await chatId.set(_chatId);
 
 			window.history.replaceState(history.state, '', `/c/${_chatId}`);
 
-			await tick();
-
-			await chats.set(await getChatList(localStorage.token, $currentChatPage));
 			currentChatPage.set(1);
+			await chats.set(await getChatList(localStorage.token, 1, false, true));
+			await tick();
 
 			selectedFolder.set(null);
 		} else {
@@ -2753,7 +2829,7 @@
 
 			if (res) {
 				currentChatPage.set(1);
-				await chats.set(await getChatList(localStorage.token, $currentChatPage));
+				await chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 				await pinnedChats.set(await getPinnedChatList(localStorage.token));
 
 				toast.success($i18n.t('Chat moved successfully'));
@@ -2769,7 +2845,7 @@
 			currentChatPage.set(1);
 			initNewChat();
 			await goto('/');
-			chats.set(await getChatList(localStorage.token, $currentChatPage));
+			chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 			pinnedChats.set(await getPinnedChatList(localStorage.token));
 			toast.success($i18n.t('Chat archived.'));
 		} catch (error) {
@@ -2810,7 +2886,9 @@
 />
 
 <div
-	class="h-screen max-h-[100dvh] transition-all duration-200 ease-in-out flex-1 flex flex-col min-w-0"
+	class="h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
+		? '  md:max-w-[calc(100%-var(--sidebar-width))]'
+		: ' '} w-full max-w-full flex flex-col"
 	id="chat-container"
 >
 	{#if !loading}
@@ -2818,22 +2896,18 @@
 			{#if $selectedFolder && $selectedFolder?.meta?.background_image_url}
 				<div
 					class="absolute top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
-					style="background-image: url({$selectedFolder?.meta?.background_image_url})  "
-				></div>
+					style="background-image: url({$selectedFolder?.meta?.background_image_url})  "></div>
 
 				<div
-					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"
-				></div>
+					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"></div>
 			{:else if $settings?.backgroundImageUrl ?? $config?.license_metadata?.background_image_url ?? null}
 				<div
 					class="absolute top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
 					style="background-image: url({$settings?.backgroundImageUrl ??
-						$config?.license_metadata?.background_image_url})  "
-				></div>
+						$config?.license_metadata?.background_image_url})  "></div>
 
 				<div
-					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"
-				></div>
+					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"></div>
 			{/if}
 
 			<PaneGroup direction="horizontal" class="w-full h-full">
@@ -2860,7 +2934,7 @@
 						{archiveChatHandler}
 						{moveChatHandler}
 						onSaveTempChat={async () => {
-							try {
+				try {
 								if (!history?.currentId || !Object.keys(history.messages).length) {
 									toast.error($i18n.t('No conversation to save'));
 									return;
@@ -2886,7 +2960,7 @@
 								if (savedChat) {
 									temporaryChatEnabled.set(false);
 									chatId.set(savedChat.id);
-									chats.set(await getChatList(localStorage.token, $currentChatPage));
+									chats.set(await getChatList(localStorage.token, $currentChatPage, false, true));
 
 									await goto(`/c/${savedChat.id}`);
 									toast.success($i18n.t('Conversation saved successfully'));
@@ -3097,4 +3171,3 @@
 		width: 0.5rem;
 	}
 </style>
-
