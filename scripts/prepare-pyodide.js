@@ -18,6 +18,11 @@ const packages = [
 	'openpyxl'
 ];
 
+if (process.env.SKIP_PYODIDE_FETCH === '1') {
+	console.log('SKIP_PYODIDE_FETCH=1, skipping pyodide package download step.');
+	process.exit(0);
+}
+
 // Pure-Python packages whose wheels must be downloaded from PyPI and saved into
 // static/pyodide/ so that the browser can install them offline via micropip.
 // Packages already provided by the Pyodide distribution (click, platformdirs,

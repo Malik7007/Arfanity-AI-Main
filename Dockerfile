@@ -2,9 +2,11 @@
 FROM node:20-alpine AS build-frontend
 WORKDIR /app/frontend
 COPY package*.json ./
-RUN npm install
+RUN npm ci --no-audit --no-fund
 COPY . .
-RUN npm run build
+ENV NODE_OPTIONS=--max-old-space-size=4096
+ENV SKIP_PYODIDE_FETCH=1
+RUN npm run build:docker
 
 # Stage 2: Build the Backend
 FROM python:3.11-slim AS build-backend
