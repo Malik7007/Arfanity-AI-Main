@@ -90,6 +90,28 @@
 		return false;
 	};
 
+	$: if ($theme) {
+		const themes = ['dark', 'light', 'oled-dark', 'her'];
+		let themeToApply = $theme === 'oled-dark' ? 'dark' : $theme === 'her' ? 'light' : $theme;
+		if ($theme === 'system') {
+			themeToApply = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		themes
+			.filter((e) => e !== themeToApply)
+			.forEach((e) => {
+				e.split(' ').forEach((cls) => document.documentElement.classList.remove(cls));
+			});
+		themeToApply.split(' ').forEach((cls) => document.documentElement.classList.add(cls));
+
+		if ($theme === 'her') {
+			document.documentElement.classList.add('her');
+		}
+
+		if (localStorage.theme !== $theme) {
+			localStorage.setItem('theme', $theme);
+		}
+	}
+
 	// handle frontend updates (https://svelte.dev/docs/kit/configuration#version)
 	beforeNavigate(async ({ willUnload, to }) => {
 		if (updated.current && !willUnload && to?.url) {
@@ -1024,6 +1046,10 @@
 			// Save Backend Status to Store
 			await config.set(backendConfig);
 			await AI_NAME.set(backendConfig.name);
+
+			if (backendConfig.default_theme) {
+				theme.set(backendConfig.default_theme);
+			}
 
 			if ($config) {
 				await setupSocket($config.features?.enable_websocket ?? true);

@@ -1243,6 +1243,12 @@ DEFAULT_LOCALE = PersistentConfig(
     os.environ.get('DEFAULT_LOCALE', ''),
 )
 
+DEFAULT_THEME = PersistentConfig(
+    'DEFAULT_THEME',
+    'ui.default_theme',
+    os.environ.get('DEFAULT_THEME', ''),
+)
+
 DEFAULT_MODELS = PersistentConfig('DEFAULT_MODELS', 'ui.default_models', os.environ.get('DEFAULT_MODELS', None))
 
 DEFAULT_PINNED_MODELS = PersistentConfig(

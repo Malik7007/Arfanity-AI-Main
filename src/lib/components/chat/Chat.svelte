@@ -1107,6 +1107,23 @@
 			}
 		}
 
+		// Wait for models to be loaded before proceeding with model selection
+		if ($models.length === 0) {
+			await new Promise((resolve) => {
+				const unsubscribe = models.subscribe((value) => {
+					if (value.length > 0) {
+						unsubscribe();
+						resolve(value);
+					}
+				});
+				setTimeout(() => {
+					unsubscribe();
+					resolve([]);
+				}, 5000);
+			});
+			await tick();
+		}
+
 		const availableModels = $models
 			.filter((m) => !(m?.info?.meta?.hidden ?? false))
 			.map((m) => m.id);
@@ -1120,34 +1137,28 @@
 				''
 			)?.split(',');
 
-			if (urlModels.length === 1) {
-				if (!$models.find((m) => m.id === urlModels[0])) {
-					// Model not found; open model selector and prefill
-					const modelSelectorButton = document.getElementById('model-selector-0-button');
-					if (modelSelectorButton) {
-						modelSelectorButton.click();
-						await tick();
-
-						const modelSelectorInput = document.getElementById('model-search-input');
-						if (modelSelectorInput) {
-							modelSelectorInput.focus();
-							modelSelectorInput.value = urlModels[0];
-							modelSelectorInput.dispatchEvent(new Event('input'));
-						}
-					}
-				} else {
-					// Model found; set it as selected
-					selectedModels = urlModels;
+			selectedModels = [];
+			for (const modelId of urlModels) {
+				const foundModel = $models.find((m) => m.id === modelId || m.name === modelId);
+				if (foundModel) {
+					selectedModels.push(foundModel.id);
 				}
-			} else {
-				// Multiple models; set as selected
-				selectedModels = urlModels;
 			}
 
-			// Unavailable models filtering
-			selectedModels = selectedModels.filter((modelId) =>
-				$models.map((m) => m.id).includes(modelId)
-			);
+			if (selectedModels.length === 0 && urlModels.length > 0) {
+				const modelSelectorButton = document.getElementById('model-selector-0-button');
+				if (modelSelectorButton) {
+					modelSelectorButton.click();
+					await tick();
+
+					const modelSelectorInput = document.getElementById('model-search-input');
+					if (modelSelectorInput) {
+						modelSelectorInput.focus();
+						modelSelectorInput.value = urlModels[0];
+						modelSelectorInput.dispatchEvent(new Event('input'));
+					}
+				}
+			}
 		} else {
 			if ($selectedFolder?.data?.model_ids) {
 				// Set from folder model IDs

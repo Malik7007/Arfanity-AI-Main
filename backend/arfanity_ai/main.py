@@ -478,6 +478,7 @@ from arfanity_ai.config import (
     IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE,
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
     VOICE_MODE_PROMPT_TEMPLATE,
+    DEFAULT_THEME,
     QUERY_GENERATION_PROMPT_TEMPLATE,
     AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE,
     AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH,
@@ -1365,6 +1366,7 @@ app.state.config.QUERY_GENERATION_PROMPT_TEMPLATE = QUERY_GENERATION_PROMPT_TEMP
 app.state.config.AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE = AUTOCOMPLETE_GENERATION_PROMPT_TEMPLATE
 app.state.config.AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH = AUTOCOMPLETE_GENERATION_INPUT_MAX_LENGTH
 app.state.config.VOICE_MODE_PROMPT_TEMPLATE = VOICE_MODE_PROMPT_TEMPLATE
+app.state.config.DEFAULT_THEME = DEFAULT_THEME
 
 
 ########################################
@@ -2227,6 +2229,7 @@ async def get_app_config(request: Request):
         'name': app.state.AI_NAME,
         'version': VERSION,
         'default_locale': str(DEFAULT_LOCALE),
+        'default_theme': app.state.config.DEFAULT_THEME,
         'oauth': {'providers': {name: config.get('name', name) for name, config in OAUTH_PROVIDERS.items()}},
         'features': {
             'auth': AI_AUTH,

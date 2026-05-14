@@ -76,14 +76,56 @@
 	};
 
 	const updatePosition = () => {
-		if (!show || !triggerElement) return;
+		if (!show || !triggerElement || !contentElement) return;
 		const rect = triggerElement.getBoundingClientRect();
-		dropdownPosition = {
-			top: rect.bottom + 2,
-			left: $mobile ? 8 : rect.left,
-			width: $mobile ? window.innerWidth - 16 : 0
-		};
+		const contentRect = contentElement.getBoundingClientRect();
+		const windowHeight = window.innerHeight;
+		const windowWidth = window.innerWidth;
+
+		let top = rect.bottom + 2;
+		let left = $mobile ? 8 : rect.left;
+		const width = $mobile ? windowWidth - 16 : 0;
+
+		// Check if there is enough space below
+		if (top + contentRect.height > windowHeight && rect.top > contentRect.height) {
+			// Show above if not enough space below but enough space above
+			top = rect.top - contentRect.height - 2;
+		}
+
+		// Ensure it doesn't go off the right edge
+		if (!$mobile && left + contentRect.width > windowWidth) {
+			left = windowWidth - contentRect.width - 8;
+		}
+
+		// Ensure it doesn't go off the left edge
+		if (left < 0) {
+			left = 8;
+		}
+
+		dropdownPosition = { top, left, width };
 	};
+
+	let resizeObserver;
+	$: if (show && triggerElement && contentElement) {
+		tick().then(() => {
+			updatePosition();
+			if (!resizeObserver) {
+				resizeObserver = new ResizeObserver(() => {
+					updatePosition();
+				});
+				resizeObserver.observe(triggerElement);
+				// Also observe a parent that might scroll or shift
+				if (triggerElement.parentElement) {
+					resizeObserver.observe(triggerElement.parentElement);
+				}
+			}
+		});
+	} else {
+		if (resizeObserver) {
+			resizeObserver.disconnect();
+			resizeObserver = null;
+		}
+	}
 
 	const toggleOpen = () => {
 		show = !show;

@@ -31,7 +31,8 @@
 		ENABLE_RETRIEVAL_QUERY_GENERATION: true,
 		QUERY_GENERATION_PROMPT_TEMPLATE: '',
 		TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE: '',
-		VOICE_MODE_PROMPT_TEMPLATE: ''
+		VOICE_MODE_PROMPT_TEMPLATE: '',
+		DEFAULT_THEME: ''
 	};
 
 	const updateInterfaceHandler = async () => {
@@ -91,6 +92,30 @@
 		}}
 	>
 		<div class="  overflow-y-scroll scrollbar-hidden h-full pr-1.5">
+			<div class="mb-3.5">
+				<div class=" mt-0.5 mb-2.5 text-base font-medium">{$i18n.t('UI Settings')}</div>
+
+				<hr class=" border-gray-100/30 dark:border-gray-850/30 my-2" />
+
+				<div class=" mb-2 font-medium flex items-center">
+					<div class=" text-xs mr-1">{$i18n.t('Default Theme')}</div>
+				</div>
+
+				<div class=" mb-2.5 flex w-full gap-2">
+					<div class="flex-1">
+						<select
+							class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+							bind:value={taskConfig.DEFAULT_THEME}
+						>
+							<option value="">{$i18n.t('System (User Choice)')}</option>
+							<option value="dark">{$i18n.t('Dark')}</option>
+							<option value="light">{$i18n.t('Light')}</option>
+							<option value="oled-dark">{$i18n.t('OLED Dark')}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
 			<div class="mb-3.5">
 				<div class=" mt-0.5 mb-2.5 text-base font-medium">{$i18n.t('Tasks')}</div>
 

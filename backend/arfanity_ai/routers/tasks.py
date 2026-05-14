@@ -80,6 +80,7 @@ async def get_task_config(request: Request, user=Depends(get_verified_user)):
         'QUERY_GENERATION_PROMPT_TEMPLATE': request.app.state.config.QUERY_GENERATION_PROMPT_TEMPLATE,
         'TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE': request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
         'VOICE_MODE_PROMPT_TEMPLATE': request.app.state.config.VOICE_MODE_PROMPT_TEMPLATE,
+        'DEFAULT_THEME': request.app.state.config.DEFAULT_THEME,
     }
 
 
@@ -100,6 +101,7 @@ class TaskConfigForm(BaseModel):
     QUERY_GENERATION_PROMPT_TEMPLATE: str
     TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE: str
     VOICE_MODE_PROMPT_TEMPLATE: Optional[str]
+    DEFAULT_THEME: Optional[str]
 
 
 @router.post('/config/update')
@@ -128,6 +130,7 @@ async def update_task_config(request: Request, form_data: TaskConfigForm, user=D
     request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE = form_data.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
 
     request.app.state.config.VOICE_MODE_PROMPT_TEMPLATE = form_data.VOICE_MODE_PROMPT_TEMPLATE
+    request.app.state.config.DEFAULT_THEME = form_data.DEFAULT_THEME
 
     return {
         'TASK_MODEL': request.app.state.config.TASK_MODEL,
@@ -146,6 +149,7 @@ async def update_task_config(request: Request, form_data: TaskConfigForm, user=D
         'QUERY_GENERATION_PROMPT_TEMPLATE': request.app.state.config.QUERY_GENERATION_PROMPT_TEMPLATE,
         'TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE': request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE,
         'VOICE_MODE_PROMPT_TEMPLATE': request.app.state.config.VOICE_MODE_PROMPT_TEMPLATE,
+        'DEFAULT_THEME': request.app.state.config.DEFAULT_THEME,
     }
 
 
